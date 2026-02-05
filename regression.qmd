@@ -1,0 +1,498 @@
+---
+title: "Regression slope"
+page-layout: custom
+format: 
+  live-html:
+    include-in-header: 
+      - text: |
+          <style>
+          #quarto-content {
+            padding: 1em 1.5em;
+          }
+          </style>
+engine: knitr
+---
+
+{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
+
+```{webr}
+#| edit: false
+#| output: false
+
+library(infer)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(htmltools)
+library(gt)
+library(parameters)
+
+options(webr.fig.height = 4)
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 14))
+
+# From MoMAColors::moma.colors("OKeeffe")
+clrs <- c("#f3d567", "#ee9b43", "#e74b47", "#b80422", "#172767", "#19798b")
+```
+
+::::::: {.grid}
+
+::::: {.g-col-12 .g-col-md-4}
+
+```{ojs}
+//| echo: false
+
+viewof sample_size = Inputs.range([30, 2000], {
+  step: 10,
+  value: 100,
+  label: "Sample size:"
+})
+
+viewof slope_size = Inputs.range([-5, 5], {
+  step: 0.1,
+  value: 0.8,
+  label: "Slope:"
+})
+```
+
+```{webr}
+#| autorun: true
+#| echo: false
+#| input:
+#|   - sample_size
+#|   - slope_size
+#| define:
+#|   - data_ready
+
+sample_data <- tibble(
+  x = runif(sample_size, 0, 10)
+) |>
+  mutate(
+    y = 20 + slope_size * x + rnorm(n(), mean = 0, sd = 5)
+  )
+
+data_ready <- TRUE
+
+ggplot(sample_data, aes(x = x, y = y)) +
+  geom_point(color = clrs[6], alpha = 0.6, size = 2) +
+  geom_smooth(
+    method = "lm", formula = y ~ x,
+    color = clrs[4], fill = clrs[4], alpha = 0.2,
+    linewidth = 1.5
+  ) +
+  labs(x = "Explanatory variable (x)", y = "Outcome variable (y)")
+```
+
+:::::
+
+::::: {.g-col-12 .g-col-md-8}
+
+:::: {.panel-tabset}
+
+## Step 1: Calculate δ
+
+The sample statistic (δ) is the **regression slope**—the estimated change in y for a one-unit increase in x.
+
+```{webr}
+#| autorun: true
+#| echo: false
+#| input:
+#|   - data_ready
+#| define:
+#|   - step1_ready
+
+obs_stat <- sample_data |>
+  specify(y ~ x) |>
+  calculate(stat = "slope")
+
+model_fit <- lm(y ~ x, data = sample_data)
+
+model_table <- model_fit |>
+  model_parameters(verbose = FALSE) |>
+  as_tibble() |>
+  select(
+    Term = Parameter,
+    Estimate = Coefficient,
+    CI_low,
+    CI_high
+  )
+
+step1_ready <- TRUE
+
+tags$p(
+  "The regression slope is ",
+  tags$strong(round(obs_stat$stat, 3)),
+  "."
+)
+
+model_table |>
+  gt() |>
+  cols_label(
+    CI_low = "95% CI"
+  ) |>
+  cols_hide(columns = c(CI_high)) |>
+  cols_merge(
+    columns = c(CI_low, CI_high),
+    pattern = "[{1}, {2}]"
+  ) |>
+  fmt_number(columns = c(Estimate, CI_low, CI_high), decimals = 3) |>
+  tab_style(
+    style = list(
+      cell_text(weight = "bold", color = "white"),
+      cell_fill(color = clrs[4])
+    ),
+    locations = cells_body(rows = Term == "x")
+  ) |>
+  opt_horizontal_padding(scale = 3) |>
+  opt_table_font(font = "Atkinson Hyperlegible") 
+```
+
+## Step 2: Simulate null world
+
+We create a null distribution by shuffling (or "permuting" to use the official stats term) the values of x. This simulates a world where all the real, measured values of both x and y are still the same, but where the relationship between x and y doesn't matter. **This eliminates any association between x and y.**
+
+Think of this as being a world where there is no relationship between x and y. Importantly, this *doesn't* mean that the slope is *exactly* 0. There is variation in the data, and that variation is reflected in the null world. What it means is that in the null world, the slope is 0 ± some amount.
+
+Here's what this null world looks like:
+
+```{ojs}
+//| echo: false
+viewof n_reps = Inputs.range([100, 2000], {
+  step: 100,
+  value: 500,
+  label: "Number of simulations:"
+})
+```
+
+::: {style="width: 75%;"}
+
+```{webr}
+#| autorun: true
+#| echo: false
+#| out-width: 50%
+#| input:
+#|   - step1_ready
+#|   - n_reps
+#| define:
+#|   - step2_ready
+
+generated <- sample_data |>
+  specify(y ~ x) |>
+  hypothesize(null = "independence") |>
+  generate(reps = n_reps, type = "permute")
+
+null_dist <- generated |>
+  calculate(stat = "slope")
+
+null_lines <- generated |>
+  fit() |>
+  select(replicate, term, estimate) |>
+  pivot_wider(names_from = term, values_from = estimate)
+
+step2_ready <- TRUE
+
+null_dist |>
+  visualize() +
+  labs(
+    title = "Simulated null world",
+    x = "Slope",
+    y = "Count"
+  )
+```
+
+:::
+
+Here's another way to see the null world slopes. Each thin line is a regression line for one of the simulated worlds where where x and y are unrelated.
+
+::: {style="width: 75%;"}
+
+```{webr}
+#| autorun: true
+#| echo: false
+#| input:
+#|   - step2_ready
+
+ggplot(sample_data, aes(x = x, y = y)) +
+  geom_abline(
+    data = null_lines,
+    aes(intercept = intercept, slope = x),
+    color = "black",
+    linewidth = 0.01
+  ) +
+  geom_point(color = clrs[6], alpha = 0.4, size = 2) +
+  labs(
+    title = "Simulated null world slopes",
+    x = "Explanatory variable (x)",
+    y = "Outcome variable (y)"
+  )
+```
+
+:::
+
+## Step 3: Put δ in the null world
+
+Next we put δ inside that null world and see how comfortably it fits there.
+
+Is it surprising to see the red line in this null world? Is the line way out to one of the sides, or is it near the middle with the rest of the null world?
+
+::: {style="width: 75%;"}
+
+```{webr}
+#| autorun: true
+#| echo: false
+#| input:
+#|   - step2_ready
+
+null_dist |>
+  visualize() +
+  geom_vline(xintercept = obs_stat$stat, color = "red2", linewidth = 2) +
+  geom_label(
+    data = obs_stat,
+    aes(x = stat, y = I(0.5), label = paste0("δ =\n", round(stat, 3))),
+    size = 14,
+    size.unit = "pt",
+    lineheight = 1
+  ) +
+  labs(
+    title = "Simulated null world with δ in it",
+    x = "Slope",
+    y = "Count"
+  )
+```
+
+:::
+
+Or alternatively, we can put the observed regression line from the actual data into the scatterplot with the null world regression lines. Is it surprising to see the red line in this null world?
+
+::: {style="width: 75%;"}
+
+```{webr}
+#| autorun: true
+#| echo: false
+#| input:
+#|   - step2_ready
+
+obs_coefs <- coef(lm(y ~ x, data = sample_data))
+
+ggplot(sample_data, aes(x = x, y = y)) +
+  geom_abline(
+    data = null_lines,
+    aes(intercept = intercept, slope = x),
+    color = "black",
+    linewidth = 0.01
+  ) +
+  geom_point(color = clrs[6], alpha = 0.4, size = 2) +
+  geom_abline(
+    intercept = obs_coefs[1], slope = obs_coefs[2],
+    color = "red2", linewidth = 2
+  ) +
+  labs(
+    title = "Simulated null world slopes with δ in it",
+    subtitle = paste0("δ = ", round(obs_stat$stat, 3)),
+    x = "Explanatory variable (x)",
+    y = "Outcome variable (y)"
+  )
+```
+
+:::
+
+## Step 4: p-value
+
+We can actually quantify the probability of seeing that red line in a null world. This is a **p-value**—the probability of seeing a δ at least that big in a world where there's no relationship between x and y.
+
+::: {style="width: 75%;"}
+
+```{webr}
+#| autorun: true
+#| echo: false
+#| input:
+#|   - step2_ready
+#| define:
+#|   - step4_ready
+
+p_value <- null_dist |>
+  get_p_value(obs_stat = obs_stat, direction = "two-sided") |>
+  suppressWarnings()
+
+if (p_value$p_value == 0) {
+  p_value_clean <- "< 0.001"
+  p_percent <- "< 0.1%"
+} else {
+  p_value_clean <- round(p_value$p_value, 3)
+  p_percent <- paste0(round(p_value$p_value * 100, 1), "%")
+}
+
+null_with_p <- null_dist |>
+  visualize() +
+  shade_p_value(obs_stat = obs_stat, direction = "two-sided") +
+  geom_label(
+    data = obs_stat,
+    aes(x = stat, y = I(0.5), label = paste0("δ =\n", round(stat, 3))),
+    size = 14,
+    size.unit = "pt",
+    lineheight = 1
+  ) +
+  geom_label(
+    data = obs_stat,
+    aes(x = stat, y = I(0.25)),
+    label = paste0("p =\n", p_value_clean),
+    size = 14,
+    size.unit = "pt",
+    lineheight = 1
+  ) +
+  labs(
+    title = "Simulated null world with δ in it",
+    x = "Slope",
+    y = "Count"
+  )
+null_with_p
+
+null_slope_with_p <- ggplot(sample_data, aes(x = x, y = y)) +
+  geom_abline(
+    data = null_lines,
+    aes(intercept = intercept, slope = x),
+    color = "black",
+    linewidth = 0.01
+  ) +
+  geom_point(color = clrs[6], alpha = 0.4, size = 2) +
+  geom_abline(
+    intercept = obs_coefs[1], slope = obs_coefs[2],
+    color = "red2", linewidth = 2
+  ) +
+  labs(
+    title = "Simulated null world slopes with δ in it",
+    subtitle = paste0(
+      "δ = ", round(obs_stat$stat, 3), "; p = ", p_value_clean
+    ),
+    x = "Explanatory variable (x)",
+    y = "Outcome variable (y)"
+  )
+null_slope_with_p
+
+step4_ready <- TRUE
+
+tags$div(
+  tags$p("The p-value is ", tags$strong(p_value_clean)),
+  tags$p(
+    "This means that in a world where there is no relationship between x and y, there is a ",
+    tags$strong(p_percent),
+    " chance of seeing a slope of at least ",
+    tags$strong(round(obs_stat$stat, 3))
+  )
+)
+```
+
+:::
+
+## Step 5: Decision
+
+Finally, we have to decide if the p-value meets an evidentiary standard or threshold that would provide us with enough evidence that we *aren't* in the null world (or, in more statsy terms, enough evidence to reject the null hypothesis).
+
+There are lots of possible thresholds. By convention, most people use a threshold (often shortened to α) of 0.05, or 5%. But that's not required! You could have a lower standard with an α of 0.1 (10%), or a higher standard with an α of 0.01 (1%).
+
+```{ojs}
+//| echo: false
+viewof alpha = Inputs.select([0.10, 0.05, 0.01], {
+  label: "Significance threshold (α):",
+  value: 0.05
+})
+```
+
+:::: {.grid}
+
+::: {.g-col-12 .g-col-md-6}
+
+```{webr}
+#| autorun: true
+#| echo: false
+#| input:
+#|   - step4_ready
+#|   - alpha
+
+if (p_value$p_value < alpha) {
+  tags$div(
+    class = "alert alert-success",
+    role = "alert",
+    tags$h5(class = "alert-heading", "Statistically significant"),
+    tags$p(
+      "The p-value is ",
+      tags$strong(p_value_clean),
+      "and our threshold for α is ",
+      tags$strong(alpha)
+    ),
+    tags$p(
+      "In a world where there is no relationship between x and y, the probability of seeing a slope of at least ",
+      tags$strong(round(obs_stat$stat, 3)),
+      "is ",
+      tags$strong(p_percent)
+    ),
+    tags$p(
+      "Since ",
+      p_value_clean,
+      " is less than ",
+      alpha,
+      ", we have enough evidence to say that the slope is ",
+      tags$strong("statistically significant.")
+    )
+  )
+} else {
+  tags$div(
+    class = "alert alert-warning",
+    role = "alert",
+    tags$h5(class = "alert-heading", "Not statistically significant"),
+    tags$p(
+      "The p-value is ",
+      tags$strong(p_value_clean),
+      "and our threshold for α is ",
+      tags$strong(alpha)
+    ),
+    tags$p(
+      "In a world where there is no relationship between x and y, the probability of seeing a slope of at least ",
+      tags$strong(round(obs_stat$stat, 3)),
+      "is ",
+      tags$strong(p_percent)
+    ),
+    tags$p(
+      "Since ",
+      p_value_clean,
+      " is greater than ",
+      alpha,
+      ", we don't have enough evidence to say that the slope doesn't come from the null world. The slope is thus ",
+      tags$strong("not statistically significant.")
+    ),
+    tags$hr(),
+    tags$p(
+      style = "font-size: 0.9em;",
+      "This does ",
+      tags$strong("not"),
+      " mean that there is no relationship between x and y! We just don't have enough evidence to judge if there's a relationship."
+    )
+  )
+}
+```
+
+:::
+
+::: {.g-col-12 .g-col-md-6}
+
+```{webr}
+#| autorun: true
+#| echo: false
+#| input:
+#|   - step4_ready
+
+null_with_p
+
+null_slope_with_p
+```
+
+:::
+
+::::
+
+{{< include _evidentiary-standards.qmd >}}
+
+::::
+
+:::::
+
+:::::::

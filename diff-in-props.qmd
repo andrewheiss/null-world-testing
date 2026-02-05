@@ -1,0 +1,465 @@
+---
+title: "Difference in proportions"
+page-layout: custom
+format: 
+  live-html:
+    include-in-header: 
+      - text: |
+          <style>
+          #quarto-content {
+            padding: 1em 1.5em;
+          }
+          </style>
+engine: knitr
+---
+
+{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
+
+```{webr}
+#| edit: false
+#| output: false
+
+library(Hmisc)
+library(infer)
+library(dplyr)
+library(ggplot2)
+library(forcats)
+library(htmltools)
+library(gt)
+library(parameters)
+library(scales)
+
+options(webr.fig.height = 4)
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 14))
+
+# From MoMAColors::moma.colors("OKeeffe")
+clrs <- c("#f3d567", "#ee9b43", "#e74b47", "#b80422", "#172767", "#19798b")
+
+label_pp <- function(x) {
+  scales::label_number(accuracy = 0.1, scale = 100, 
+    suffix = " pp.", style_negative = "minus")(x)
+}
+
+label_pp0 <- function(x) {
+  scales::label_number(accuracy = 1, scale = 100, 
+    suffix = " pp.", style_negative = "minus")(x)
+}
+
+label_pp_long <- function(x) {
+  scales::label_number(accuracy = 0.1, scale = 100, 
+    suffix = " percentage points", style_negative = "minus")(x)
+}
+```
+
+::::::: {.grid}
+
+::::: {.g-col-12 .g-col-md-4}
+
+```{ojs}
+//| echo: false
+
+viewof sample_size = Inputs.range([30, 2000], {
+  step: 10,
+  value: 100,
+  label: "Sample size:"
+})
+
+viewof effect_size = Inputs.range([-0.5, 0.5], {
+  step: 0.01,
+  value: 0.2,
+  label: "Percentage-point difference:"
+})
+```
+
+```{webr}
+#| autorun: true
+#| echo: false
+#| input:
+#|   - sample_size
+#|   - effect_size
+#| define:
+#|   - data_ready
+
+sample_data <- tibble(
+  group = sample(c("A", "B"), sample_size, replace = TRUE)
+) |>
+  mutate(
+    prob = case_when(
+      group == "A" ~ 0.5,
+      group == "B" ~ 0.5 + effect_size
+    ),
+    outcome = ifelse(runif(n()) < prob, "Agree", "Disagree"),
+    outcome = factor(outcome, levels = c("Agree", "Disagree"))
+  ) |>
+  select(-prob)
+
+data_ready <- TRUE
+
+sample_data |> 
+  count(group, outcome) |> 
+  group_by(group) |> 
+  mutate(prop = n / sum(n)) |> 
+  ggplot(aes(x = prop, y = fct_rev(group), fill = fct_rev(outcome))) + 
+  geom_col() +
+  scale_fill_manual(
+    values = c("Agree" = clrs[5], "Disagree" = clrs[2]),
+    guide = guide_legend(reverse = TRUE)
+  ) + 
+  labs(x = "Proportion", y = NULL, fill = NULL) + 
+  theme(legend.position = "top")
+```
+
+:::::
+
+::::: {.g-col-12 .g-col-md-8}
+
+:::: {.panel-tabset}
+
+## Step 1: Calculate δ
+
+The sample statistic (δ) is the **difference in proportions** of how many people responded "Agree" between the two groups.
+
+```{webr}
+#| autorun: true
+#| echo: false
+#| input:
+#|   - data_ready
+#| define:
+#|   - step1_ready
+
+obs_stat <- sample_data |>
+  specify(outcome ~ group, success = "Agree") |>
+  calculate(stat = "diff in props", order = c("B", "A"))
+
+group_stats <- sample_data |>
+  group_by(group) |>
+  dplyr::summarize(
+    n = n(),
+    successes = sum(outcome == "Agree"),
+    prop = mean(outcome == "Agree")
+  )
+
+group_cis <- group_stats |>
+  rowwise() |>
+  mutate(
+    ci = list(prop.test(successes, n)$conf.int),
+    CI_low = ci[1],
+    CI_high = ci[2]
+  ) |>
+  ungroup() |>
+  select(group, n, avg = prop, CI_low, CI_high)
+
+diff_details <- lm(
+  as.numeric(outcome == "Agree") ~ group,
+  data = sample_data
+) |>
+  model_parameters(keep = "group", verbose = FALSE) |>
+  as_tibble() |>
+  mutate(group = "Difference between % agree (B − A)") |>
+  select(group, avg = Coefficient, CI_low, CI_high)
+
+averages <- bind_rows(group_cis, diff_details)
+
+step1_ready <- TRUE
+
+tags$p(
+  "The difference in proportions is ",
+  tags$strong(label_pp_long(obs_stat$stat))
+)
+
+averages |>
+  gt() |>
+  cols_label(
+    group = "Group",
+    n = "N",
+    avg = "Proportion",
+    CI_low = "95% CI"
+  ) |>
+  cols_hide(columns = c(CI_high)) |>
+  cols_merge(
+    columns = c(CI_low, CI_high),
+    pattern = "[{1}, {2}]"
+  ) |>
+  fmt_percent(columns = c(avg, CI_low, CI_high), rows = 1:2, decimals = 1) |>
+  fmt(columns = c(avg, CI_low, CI_high), rows = 3, fns = label_pp) |>
+  sub_missing(missing_text = "") |>
+  tab_style(
+    style = cell_fill(color = clrs[5], alpha = 0.1),
+    locations = cells_body(rows = group == "A")
+  ) |>
+  tab_style(
+    style = cell_fill(color = clrs[2], alpha = 0.1),
+    locations = cells_body(rows = group == "B")
+  ) |>
+  tab_style(
+    style = list(
+      cell_text(weight = "bold", color = "white"),
+      cell_fill(color = clrs[4])
+    ),
+    locations = cells_body(rows = 3)
+  ) |> 
+  opt_horizontal_padding(scale = 3) |>
+  opt_table_font(font = "Atkinson Hyperlegible") 
+```
+
+## Step 2: Simulate null world
+
+We create a null distribution by shuffling (or "permuting" to use the official stats term) the group labels. This simulates a world where all the real, measured responses are still the same, but where group assignment doesn't matter. **This eliminates all differences between the groups.**
+
+Think of this as being a world where there are no differences between the two groups. Importantly, this *doesn't* mean that the measured difference between the groups is *exactly* 0. There is variation in the data, and that variation is reflected in the null world. What it means is that in the null world, the difference between the two groups is 0 ± some amount.
+
+Here's what this null world looks like:
+
+```{ojs}
+//| echo: false
+viewof n_reps = Inputs.range([100, 2000], {
+  step: 100,
+  value: 500,
+  label: "Number of simulations:"
+})
+```
+
+::: {style="width: 75%;"}
+
+```{webr}
+#| autorun: true
+#| echo: false
+#| out-width: 50%
+#| input:
+#|   - step1_ready
+#|   - n_reps
+#| define:
+#|   - step2_ready
+
+null_dist <- sample_data |>
+  specify(outcome ~ group, success = "Agree") |>
+  hypothesize(null = "independence") |>
+  generate(reps = n_reps, type = "permute") |>
+  calculate(stat = "diff in props", order = c("B", "A"))
+
+step2_ready <- TRUE
+
+null_dist |>
+  visualize() +
+  scale_x_continuous(labels = label_pp0) + 
+  labs(
+    title = "Simulated null world",
+    x = "Difference between % agree (B − A)",
+    y = "Count"
+  )
+```
+
+:::
+
+## Step 3: Put δ in the null world
+
+Next we put δ inside that null world and see how comfortably it fits there.
+
+Is it surprising to see the red line in this null world? Is the line way out to one of the sides, or is it near the middle with the rest of the null world?
+
+::: {style="width: 75%;"}
+
+```{webr}
+#| autorun: true
+#| echo: false
+#| input:
+#|   - step2_ready
+
+null_dist |>
+  visualize() +
+  geom_vline(xintercept = obs_stat$stat, color = "red2", linewidth = 2) +
+  geom_label(
+    data = obs_stat,
+    aes(x = stat, y = I(0.5), label = paste0("δ =\n", label_pp(stat))),
+    size = 14,
+    size.unit = "pt",
+    lineheight = 1
+  ) +
+  scale_x_continuous(labels = label_pp0) + 
+  labs(
+    title = "Simulated null world with δ in it",
+    x = "Difference between % agree (B − A)",
+    y = "Count"
+  )
+```
+
+:::
+
+## Step 4: p-value
+
+We can actually quantify the probability of seeing that red line in a null world. This is a **p-value**—the probability of seeing a δ at least that big in a world where there's no difference between the group proportions.
+
+::: {style="width: 75%;"}
+
+```{webr}
+#| autorun: true
+#| echo: false
+#| input:
+#|   - step2_ready
+#| define:
+#|   - step4_ready
+
+p_value <- null_dist |>
+  get_p_value(obs_stat = obs_stat, direction = "two-sided") |>
+  suppressWarnings()
+
+if (p_value$p_value == 0) {
+  p_value_clean <- "< 0.001"
+  p_percent <- "< 0.1%"
+} else {
+  p_value_clean <- round(p_value$p_value, 3)
+  p_percent <- paste0(round(p_value$p_value * 100, 1), "%")
+}
+
+null_with_p <- null_dist |>
+  visualize() +
+  shade_p_value(obs_stat = obs_stat, direction = "two-sided") +
+  geom_label(
+    data = obs_stat,
+    aes(x = stat, y = I(0.5), label = paste0("δ =\n", label_pp(stat))),
+    size = 14,
+    size.unit = "pt",
+    lineheight = 1
+  ) +
+  geom_label(
+    data = obs_stat,
+    aes(x = stat, y = I(0.25)),
+    label = paste0("p =\n", p_value_clean),
+    size = 14,
+    size.unit = "pt",
+    lineheight = 1
+  ) +
+  scale_x_continuous(labels = label_pp0) + 
+  labs(
+    title = "Simulated null world with δ in it",
+    x = "Difference between % agree (B − A)",
+    y = "Count"
+  )
+null_with_p
+
+step4_ready <- TRUE
+
+tags$div(
+  tags$p("The p-value is ", tags$strong(p_value_clean)),
+  tags$p(
+    "This means that in a world where there is no difference between the groups, there is a ",
+    tags$strong(p_percent),
+    " chance of seeing a difference of at least ",
+    tags$strong(label_pp_long(obs_stat$stat))
+  )
+)
+```
+
+:::
+
+## Step 5: Decision
+
+Finally, we have to decide if the p-value meets an evidentiary standard or threshold that would provide us with enough evidence that we *aren't* in the null world (or, in more statsy terms, enough evidence to reject the null hypothesis).
+
+There are lots of possible thresholds. By convention, most people use a threshold (often shortened to α) of 0.05, or 5%. But that's not required! You could have a lower standard with an α of 0.1 (10%), or a higher standard with an α of 0.01 (1%).
+
+```{ojs}
+//| echo: false
+viewof alpha = Inputs.select([0.10, 0.05, 0.01], {
+  label: "Significance threshold (α):",
+  value: 0.05
+})
+```
+
+:::: {.grid}
+
+::: {.g-col-12 .g-col-md-6}
+
+```{webr}
+#| autorun: true
+#| echo: false
+#| input:
+#|   - step4_ready
+#|   - alpha
+
+if (p_value$p_value < alpha) {
+  tags$div(
+    class = "alert alert-success",
+    role = "alert",
+    tags$h5(class = "alert-heading", "Statistically significant"),
+    tags$p(
+      "The p-value is ",
+      tags$strong(p_value_clean),
+      "and our threshold for α is ",
+      tags$strong(alpha)
+    ),
+    tags$p(
+      "In a world where there is no difference between the groups, the probability of seeing a difference of at least ",
+      tags$strong(label_pp_long(obs_stat$stat)),
+      "is ",
+      tags$strong(p_percent)
+    ),
+    tags$p(
+      "Since ",
+      p_value_clean,
+      " is less than ",
+      alpha,
+      ", we have enough evidence to say that the difference is ",
+      tags$strong("statistically significant.")
+    )
+  )
+} else {
+  tags$div(
+    class = "alert alert-warning",
+    role = "alert",
+    tags$h5(class = "alert-heading", "Not statistically significant"),
+    tags$p(
+      "The p-value is ",
+      tags$strong(p_value_clean),
+      "and our threshold for α is ",
+      tags$strong(alpha)
+    ),
+    tags$p(
+      "In a world where there is no difference between the groups, the probability of seeing a difference of at least ",
+      tags$strong(label_pp_long(obs_stat$stat)),
+      "is ",
+      tags$strong(p_percent)
+    ),
+    tags$p(
+      "Since ",
+      p_value_clean,
+      " is greater than ",
+      alpha,
+      ", we don't have enough evidence to say that the difference doesn't come from the null world. The difference is thus ",
+      tags$strong("not statistically significant.")
+    ),
+    tags$hr(),
+    tags$p(
+      style = "font-size: 0.9em;",
+      "This does ",
+      tags$strong("not"),
+      " mean that there is no difference between the groups! We just don't have enough evidence to judge if there's a difference."
+    )
+  )
+}
+```
+
+:::
+
+::: {.g-col-12 .g-col-md-6}
+
+```{webr}
+#| autorun: true
+#| echo: false
+#| input:
+#|   - step4_ready
+
+null_with_p
+```
+
+:::
+
+::::
+
+{{< include _evidentiary-standards.qmd >}}
+
+::::
+
+:::::
+
+:::::::

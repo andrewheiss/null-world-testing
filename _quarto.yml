@@ -1,0 +1,46 @@
+project:
+  type: website
+  render:
+    - "*.qmd"
+    - "!resources/"
+  preview:
+    port: 7777
+
+website:
+  title: "Null worlds"
+
+  repo-url: "https://github.com/andrewheiss/null-world-testing"
+  repo-actions: [source, issue]
+
+  navbar:
+    title: "<span class='null-icon'>◎◉○</span> Null worlds"
+    left:
+      - href: diff-in-means.qmd
+        text: Difference in means
+      - href: diff-in-props.qmd
+        text: Difference in proportions
+      - href: regression.qmd
+        text: Regression
+      - href: one-sample-mean.qmd
+        text: One-sample mean
+      - href: regular-p-values.qmd
+        text: Regular p-values
+    right:
+      - icon: github
+        href: "https://github.com/andrewheiss/null-world-testing"
+  
+  page-footer:
+    border: false
+    background: "#dddddd"
+    left: |
+      {{< fa brands creative-commons >}} 2026 by [Andrew Heiss](https://www.andrewheiss.com) | [CC BY-SA](https://creativecommons.org/licenses/by-sa/4.0/) {{< fa brands creative-commons-by >}} {{< fa brands creative-commons-sa >}}
+    right: |
+      Made with {{< fa brands r-project >}} and [Quarto](https://quarto.org/)
+    center: "◎◉○"
+
+format:
+  live-html:
+    theme:
+      - zephyr
+      - brand
+      - css/custom.scss
