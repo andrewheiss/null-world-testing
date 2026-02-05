@@ -1,0 +1,42 @@
+### Evidentiary standards
+
+When thinking about p-values and thresholds, I like to imagine myself as a judge or a member of a jury. Many legal systems around the world have formal evidentiary thresholds or standards of proof. If prosecutors provide evidence that meets a threshold (i.e. goes beyond a reasonable doubt, or shows evidence on a balance of probabilities), the judge or jury can rule *guilty*. If there's not enough evidence to clear the standard or threshold, the judge or jury has to rule *not guilty*.
+
+With p-values:
+
+- If the probability of seeing an effect or difference (or δ) in a null world is less than 5% (or whatever the threshold is), we rule it *statistically significant* and say that the difference does not fit in that world. **We're pretty confident that it's not zero.**
+- If the p-value is larger than the threshold, we do not have enough evidence to claim that δ doesn't come from a world of where there's no difference. **We don't know if it's not zero.**
+
+Importantly, *if the difference is not significant, that does not mean that there is no difference*. **It just means that we can't detect one if there is**. If a prosecutor doesn't provide sufficient evidence to clear a standard or threshold, it does not mean that the defendant didn't do whatever they're charged with\*—it means that the judge or jury can't detect guilt. 
+
+::: {style="font-size: 0.8em;"}
+\* Kind of—in common law systems, defendants are presumed innocent until proven guilty, so if there's not enough evidence to prove guilt, they are innocent by definition.
+:::
+
+::: {.callout-note}
+#### Different evidentiary standards
+
+Many legal systems have different levels of evidentiary standards:
+
+- Standards of proof in common law systems (juries): [<i class="bi bi-link-45deg"></i>](https://righttoremain.org.uk/what-are-the-different-standards-and-burdens-of-proof-in-legal-cases/) [<i class="bi bi-link-45deg"></i>](https://www.bljsolicitors.co.uk/blog/understanding-the-standard-of-proof-in-criminal-cases/) 
+  - Balance of probabilities (civil cases)
+  - Beyond a reasonable doubt (criminal cases)
+
+- Evidentiary thresholds in the United States (juries): [<i class="bi bi-link-45deg"></i>](https://www.law.cornell.edu/wex/burden_of_proof)
+  - Preponderance of the evidence (civil cases)
+  - Clear and convincing evidence (more important civil cases)
+  - Beyond a reasonable doubt (criminal cases)
+
+- Levels of doubt in Sharia systems (judges): [<i class="bi bi-link-45deg"></i>](https://creighton-intl-comp-law-journal.scholasticahq.com/article/118706-a-world-of-doubt-criminal-standards-of-proof-in-the-common-law-islamic-and-east-asian-legal-traditions) [<i class="bi bi-link-45deg"></i>](https://qawl.com/?p=2212&lang=en) [<i class="bi bi-link-45deg"></i>](https://www.smahate.com/islamic-classes/2013-winter/al-qawaaid-al-fiqhiyyah) [<i class="bi bi-link-45deg"></i>](https://www.arabnews.com/node/219226) [<i class="bi bi-link-45deg"></i>](https://doi.org/10.33102/mjsl.vol12no1.491)
+  - غلبة الظن [*ghalabat al-zann*] / preponderance of assumption (ta'zir cases and family matters)
+  - اليقين [*yaqin*] / certainty (hudud/qisas cases)
+
+- Standard of proof in the International Criminal Court (judges): [<i class="bi bi-link-45deg"></i>](https://www.icc-cpi.int/about/how-the-court-works)
+  - Beyond reasonable doubt (genocide, crimes against humanity, or war crimes)
+
+:::
+
+::: {.content-hidden}
+- https://mjsl.usim.edu.my/index.php/jurnalmjsl/article/view/491
+- Matthew Rosendahl, A World of Doubt: Criminal Standards of Proof in the Common Law, Islamic, and East Asian Legal Traditions, 14 CICLJ 19 (2024). (Creighton International and Comparative Law Journal)
+:::

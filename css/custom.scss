@@ -1,0 +1,106 @@
+/*-- scss:defaults --*/
+
+$code-font-size: 0.75em;
+
+/*-- scss:rules --*/
+
+// Shrink the little icon in the navbar title
+.null-icon {
+  font-size: 1.25cap;
+}
+
+// Hero image section
+#quarto-content > .hero-image {
+  margin: 0;
+  padding: 0;
+  line-height: 0;
+
+  p {
+    margin: 0;
+    padding: 0;
+    line-height: 0;
+  }
+
+  img {
+    width: 100%;
+    height: 20vh;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+// Dark hero banner with page title
+.hero-banner {
+  background-color: #000000;
+  color: #ffffff;
+  text-align: center;
+  padding: 4rem 1rem;
+
+  h1 {
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #ffffff;
+  }
+
+  p {
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.85);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+.nav-footer {
+  a:hover {
+    color: $link-hover-color;
+  }
+}
+
+// Footer center section stuff
+.nav-footer .nav-footer-center {
+  // Override Quarto's large margin-top on narrow screens
+  @media (max-width: 767.98px) {
+    margin-top: 0;
+  }
+
+  p {
+    margin-bottom: 0.5em;
+  }
+
+  .toc-actions {
+    padding: 0;
+
+    // Center the GitHub actions links
+    ul {
+      padding-left: 0;
+      margin-bottom: 0;
+      justify-content: center;
+      gap: 0.25em;
+
+      li {
+        margin: 0;
+        padding: 0;
+      }
+    }
+  }
+}
+
+// Force gt tables to inherit site font instead of using their inline styles
+table.gt_table,
+table.gt_table * {
+  font-family: inherit !important;
+}
+
+// Stop ALL CAPS in table headers
+thead th {
+  text-transform: none;
+  line-height: 1.2;
+}
+
+// Regular content section
+.content-section {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+}
