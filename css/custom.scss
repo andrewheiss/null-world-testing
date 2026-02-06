@@ -86,16 +86,19 @@ $code-font-size: 0.75em;
   }
 }
 
-// Force gt tables to inherit site font instead of using their inline styles
-table.gt_table,
-table.gt_table * {
-  font-family: inherit !important;
-}
-
 // Stop ALL CAPS in table headers
 thead th {
   text-transform: none;
   line-height: 1.2;
+}
+
+// Make the input controls column sticky on wider screens
+@media (min-width: 768px) {
+  .sticky {
+    position: sticky;
+    top: 4.5rem;
+    align-self: start;
+  }
 }
 
 // Regular content section

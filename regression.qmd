@@ -1,42 +1,75 @@
 ---
 title: "Regression slope"
 page-layout: custom
-format: 
-  live-html:
-    include-in-header: 
+format:
+  html:
+    include-in-header:
       - text: |
           <style>
           #quarto-content {
             padding: 1em 1.5em;
           }
           </style>
-engine: knitr
 ---
 
-{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
+```{ojs}
+//| echo: false
 
-```{webr}
-#| edit: false
-#| output: false
+jstat = require("jstat@1.9.6")
 
-library(infer)
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-library(htmltools)
-library(gt)
-library(parameters)
+clrs = ({
+  gold: "#f3d567",
+  orange: "#ee9b43",
+  coral: "#e74b47",
+  crimson: "#b80422",
+  navy: "#172767",
+  teal: "#19798b"
+})
 
-options(webr.fig.height = 4)
-ggplot2::theme_set(ggplot2::theme_minimal(base_size = 14))
+// Simple OLS helper: returns { intercept, slope }
+function ols(xvals, yvals) {
+  const n = xvals.length;
+  const mx = d3.mean(xvals);
+  const my = d3.mean(yvals);
+  let ssxy = 0, ssxx = 0;
+  for (let i = 0; i < n; i++) {
+    ssxy += (xvals[i] - mx) * (yvals[i] - my);
+    ssxx += (xvals[i] - mx) * (xvals[i] - mx);
+  }
+  const slope = ssxy / ssxx;
+  const intercept = my - slope * mx;
+  return { intercept, slope };
+}
 
-# From MoMAColors::moma.colors("OKeeffe")
-clrs <- c("#f3d567", "#ee9b43", "#e74b47", "#b80422", "#172767", "#19798b")
+function statLabel(value, textFn, dy, nullValues) {
+  const extent = d3.extent([...nullValues, value]);
+  const range = extent[1] - extent[0];
+  const pos = range === 0 ? 0.5 :
+    (value - extent[0]) / range;
+  const textAnchor = pos > 0.82 ? "end" :
+    pos < 0.18 ? "start" : "middle";
+  const dx = textAnchor === "end" ? -10 :
+    textAnchor === "start" ? 10 : 0;
+
+  const common = {
+    x: d => d, frameAnchor: "top", dy, dx,
+    text: textFn,
+    fontWeight: "bold", fontSize: 14,
+    textAnchor, paintOrder: "stroke"
+  };
+
+  return [
+    Plot.text([value], {
+      ...common,
+      stroke: "white", strokeWidth: 4, fill: "black"
+    })
+  ];
+}
 ```
 
 ::::::: {.grid}
 
-::::: {.g-col-12 .g-col-md-4}
+::::: {.g-col-12 .g-col-md-4 .sticky}
 
 ```{ojs}
 //| echo: false
@@ -52,34 +85,61 @@ viewof slope_size = Inputs.range([-5, 5], {
   value: 0.8,
   label: "Slope:"
 })
+
+viewof spread = Inputs.range([1, 15], {
+  step: 1,
+  value: 5,
+  label: "Noise (σ):"
+})
 ```
 
-```{webr}
-#| autorun: true
-#| echo: false
-#| input:
-#|   - sample_size
-#|   - slope_size
-#| define:
-#|   - data_ready
+```{ojs}
+//| echo: false
 
-sample_data <- tibble(
-  x = runif(sample_size, 0, 10)
-) |>
-  mutate(
-    y = 20 + slope_size * x + rnorm(n(), mean = 0, sd = 5)
-  )
+sample_data = {
+  const data = [];
+  for (let i = 0; i < sample_size; i++) {
+    const x = Math.random() * 10;
+    const y = 20 + slope_size * x +
+      jstat.normal.sample(0, spread);
+    data.push({ x, y });
+  }
+  return data;
+}
 
-data_ready <- TRUE
+obs_fit = ols(
+  sample_data.map(d => d.x),
+  sample_data.map(d => d.y)
+)
 
-ggplot(sample_data, aes(x = x, y = y)) +
-  geom_point(color = clrs[6], alpha = 0.6, size = 2) +
-  geom_smooth(
-    method = "lm", formula = y ~ x,
-    color = clrs[4], fill = clrs[4], alpha = 0.2,
-    linewidth = 1.5
-  ) +
-  labs(x = "Explanatory variable (x)", y = "Outcome variable (y)")
+Plot.plot({
+  style: { fontSize: "13px" },
+  marginLeft: 50,
+  height: 280,
+  x: { label: "Explanatory variable (x)" },
+  y: { label: "Outcome variable (y)" },
+  marks: [
+    Plot.dot(sample_data, {
+      x: "x",
+      y: "y",
+      fill: clrs.teal,
+      fillOpacity: 0.6,
+      r: 3
+    }),
+    Plot.line(
+      [
+        { x: 0, y: obs_fit.intercept },
+        { x: 10, y: obs_fit.intercept + obs_fit.slope * 10 }
+      ],
+      {
+        x: "x",
+        y: "y",
+        stroke: clrs.crimson,
+        strokeWidth: 2.5
+      }
+    )
+  ]
+})
 ```
 
 :::::
@@ -92,58 +152,75 @@ ggplot(sample_data, aes(x = x, y = y)) +
 
 The sample statistic (δ) is the **regression slope**—the estimated change in y for a one-unit increase in x.
 
-```{webr}
-#| autorun: true
-#| echo: false
-#| input:
-#|   - data_ready
-#| define:
-#|   - step1_ready
+```{ojs}
+//| echo: false
 
-obs_stat <- sample_data |>
-  specify(y ~ x) |>
-  calculate(stat = "slope")
+model_stats = {
+  const xvals = sample_data.map(d => d.x);
+  const yvals = sample_data.map(d => d.y);
+  const fit = ols(xvals, yvals);
+  const n = xvals.length;
 
-model_fit <- lm(y ~ x, data = sample_data)
+  // Residual standard error
+  const mx = d3.mean(xvals);
+  let ssxx = 0, sse = 0;
+  for (let i = 0; i < n; i++) {
+    const pred = fit.intercept + fit.slope * xvals[i];
+    sse += (yvals[i] - pred) ** 2;
+    ssxx += (xvals[i] - mx) ** 2;
+  }
+  const rse = Math.sqrt(sse / (n - 2));
+  const se_slope = rse / Math.sqrt(ssxx);
+  const se_intercept = rse *
+    Math.sqrt(1 / n + mx * mx / ssxx);
 
-model_table <- model_fit |>
-  model_parameters(verbose = FALSE) |>
-  as_tibble() |>
-  select(
-    Term = Parameter,
-    Estimate = Coefficient,
-    CI_low,
-    CI_high
-  )
+  return {
+    intercept: fit.intercept,
+    slope: fit.slope,
+    se_slope,
+    se_intercept,
+    ci_slope: [
+      fit.slope - 1.96 * se_slope,
+      fit.slope + 1.96 * se_slope
+    ],
+    ci_intercept: [
+      fit.intercept - 1.96 * se_intercept,
+      fit.intercept + 1.96 * se_intercept
+    ]
+  };
+}
 
-step1_ready <- TRUE
+obs_stat = model_stats.slope
 
-tags$p(
-  "The regression slope is ",
-  tags$strong(round(obs_stat$stat, 3)),
-  "."
-)
+obs_stat_abs = Math.abs(obs_stat).toFixed(3)
+```
 
-model_table |>
-  gt() |>
-  cols_label(
-    CI_low = "95% CI"
-  ) |>
-  cols_hide(columns = c(CI_high)) |>
-  cols_merge(
-    columns = c(CI_low, CI_high),
-    pattern = "[{1}, {2}]"
-  ) |>
-  fmt_number(columns = c(Estimate, CI_low, CI_high), decimals = 3) |>
-  tab_style(
-    style = list(
-      cell_text(weight = "bold", color = "white"),
-      cell_fill(color = clrs[4])
-    ),
-    locations = cells_body(rows = Term == "x")
-  ) |>
-  opt_horizontal_padding(scale = 3) |>
-  opt_table_font(font = "Atkinson Hyperlegible") 
+The regression slope is **`{ojs} obs_stat.toFixed(3)`**.
+
+```{ojs}
+//| echo: false
+
+html`<table class="table table-sm" style="max-width: 500px;">
+  <thead>
+    <tr>
+      <th>Term</th>
+      <th>Estimate</th>
+      <th>95% CI</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>(Intercept)</td>
+      <td>${model_stats.intercept.toFixed(3)}</td>
+      <td>[${model_stats.ci_intercept[0].toFixed(3)}, ${model_stats.ci_intercept[1].toFixed(3)}]</td>
+    </tr>
+    <tr style="background-color: ${clrs.crimson}; color: white; font-weight: bold;">
+      <td>x</td>
+      <td>${model_stats.slope.toFixed(3)}</td>
+      <td>[${model_stats.ci_slope[0].toFixed(3)}, ${model_stats.ci_slope[1].toFixed(3)}]</td>
+    </tr>
+  </tbody>
+</table>`
 ```
 
 ## Step 2: Simulate null world
@@ -152,10 +229,87 @@ We create a null distribution by shuffling (or "permuting" to use the official s
 
 Think of this as being a world where there is no relationship between x and y. Importantly, this *doesn't* mean that the slope is *exactly* 0. There is variation in the data, and that variation is reflected in the null world. What it means is that in the null world, the slope is 0 ± some amount.
 
+Here's what one shuffle looks like. Notice that the y values stay the same—only the x values get reassigned:
+
+```{ojs}
+//| echo: false
+
+viewof reshuffle = Inputs.button("Reshuffle")
+```
+
+```{ojs}
+//| echo: false
+
+shuffle_preview = {
+  reshuffle;
+  const subset = sample_data.slice(0, 8);
+  const xvals = subset.map(d => d.x);
+  const shuffled_x = xvals.slice();
+  for (let i = shuffled_x.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled_x[i], shuffled_x[j]] =
+      [shuffled_x[j], shuffled_x[i]];
+  }
+  return {
+    original: subset.map((d, i) => ({
+      " ": i + 1,
+      x: +d.x.toFixed(1),
+      y: +d.y.toFixed(1)
+    })),
+    shuffled: subset.map((d, i) => ({
+      " ": i + 1,
+      x: +shuffled_x[i].toFixed(1),
+      y: +d.y.toFixed(1)
+    }))
+  };
+}
+```
+
+::::: {.grid}
+
+:::: {.g-col-6}
+
+**Original data**
+
+```{ojs}
+//| echo: false
+
+Inputs.table(shuffle_preview.original, {
+  columns: [" ", "x", "y"],
+  rows: 8,
+  sort: false,
+  select: false
+})
+```
+
+::::
+
+:::: {.g-col-6}
+
+**Shuffled data**
+
+```{ojs}
+//| echo: false
+
+Inputs.table(shuffle_preview.shuffled, {
+  columns: [" ", "x", "y"],
+  rows: 8,
+  sort: false,
+  select: false
+})
+```
+
+::::
+
+:::::
+
+When we do this shuffle hundreds of times and fit a regression each time, we get a **null distribution**—a picture of what slopes look like in a world where x and y are unrelated.
+
 Here's what this null world looks like:
 
 ```{ojs}
 //| echo: false
+
 viewof n_reps = Inputs.range([100, 2000], {
   step: 100,
   value: 500,
@@ -165,65 +319,99 @@ viewof n_reps = Inputs.range([100, 2000], {
 
 ::: {style="width: 75%;"}
 
-```{webr}
-#| autorun: true
-#| echo: false
-#| out-width: 50%
-#| input:
-#|   - step1_ready
-#|   - n_reps
-#| define:
-#|   - step2_ready
+```{ojs}
+//| echo: false
 
-generated <- sample_data |>
-  specify(y ~ x) |>
-  hypothesize(null = "independence") |>
-  generate(reps = n_reps, type = "permute")
+null_results = {
+  const xvals = sample_data.map(d => d.x);
+  const yvals = sample_data.map(d => d.y);
+  const n = xvals.length;
+  const stats = [];
+  const lines = [];
 
-null_dist <- generated |>
-  calculate(stat = "slope")
+  for (let r = 0; r < n_reps; r++) {
+    // Fisher-Yates shuffle of x values
+    const shuffled_x = xvals.slice();
+    for (let i = n - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled_x[i], shuffled_x[j]] =
+        [shuffled_x[j], shuffled_x[i]];
+    }
 
-null_lines <- generated |>
-  fit() |>
-  select(replicate, term, estimate) |>
-  pivot_wider(names_from = term, values_from = estimate)
+    const fit = ols(shuffled_x, yvals);
+    stats.push({ stat: fit.slope });
+    lines.push({
+      intercept: fit.intercept,
+      slope: fit.slope
+    });
+  }
+  return { stats, lines };
+}
 
-step2_ready <- TRUE
+null_dist = null_results.stats
 
-null_dist |>
-  visualize() +
-  labs(
-    title = "Simulated null world",
-    x = "Slope",
-    y = "Count"
-  )
+Plot.plot({
+  style: { fontSize: "13px" },
+  height: 300,
+  width: 500,
+  x: { label: "Slope" },
+  y: { label: "Count" },
+  marks: [
+    Plot.rectY(
+      null_dist,
+      Plot.binX(
+        { y: "count" },
+        { x: "stat", fill: clrs.navy, fillOpacity: 0.7 }
+      )
+    )
+  ]
+})
 ```
 
 :::
 
-Here's another way to see the null world slopes. Each thin line is a regression line for one of the simulated worlds where where x and y are unrelated.
+Here's another way to see the null world slopes. Each thin line is a regression line for one of the simulated worlds where x and y are unrelated.
 
 ::: {style="width: 75%;"}
 
-```{webr}
-#| autorun: true
-#| echo: false
-#| input:
-#|   - step2_ready
+```{ojs}
+//| echo: false
 
-ggplot(sample_data, aes(x = x, y = y)) +
-  geom_abline(
-    data = null_lines,
-    aes(intercept = intercept, slope = x),
-    color = "black",
-    linewidth = 0.01
-  ) +
-  geom_point(color = clrs[6], alpha = 0.4, size = 2) +
-  labs(
-    title = "Simulated null world slopes",
-    x = "Explanatory variable (x)",
-    y = "Outcome variable (y)"
-  )
+Plot.plot({
+  style: { fontSize: "13px" },
+  height: 300,
+  width: 500,
+  x: {
+    label: "Explanatory variable (x)",
+    domain: [0, 10]
+  },
+  y: { label: "Outcome variable (y)" },
+  marks: [
+    // Null world regression lines
+    ...null_results.lines.map(l =>
+      Plot.line(
+        [
+          { x: 0, y: l.intercept },
+          { x: 10, y: l.intercept + l.slope * 10 }
+        ],
+        {
+          x: "x",
+          y: "y",
+          stroke: "black",
+          strokeWidth: 0.1,
+          strokeOpacity: 0.3
+        }
+      )
+    ),
+    Plot.dot(sample_data, {
+      x: "x",
+      y: "y",
+      fill: clrs.teal,
+      fillOpacity: 0.4,
+      r: 3
+    })
+  ]
+})
 ```
 
 :::
@@ -236,27 +424,28 @@ Is it surprising to see the red line in this null world? Is the line way out to 
 
 ::: {style="width: 75%;"}
 
-```{webr}
-#| autorun: true
-#| echo: false
-#| input:
-#|   - step2_ready
+```{ojs}
+//| echo: false
 
-null_dist |>
-  visualize() +
-  geom_vline(xintercept = obs_stat$stat, color = "red2", linewidth = 2) +
-  geom_label(
-    data = obs_stat,
-    aes(x = stat, y = I(0.5), label = paste0("δ =\n", round(stat, 3))),
-    size = 14,
-    size.unit = "pt",
-    lineheight = 1
-  ) +
-  labs(
-    title = "Simulated null world with δ in it",
-    x = "Slope",
-    y = "Count"
-  )
+Plot.plot({
+  style: { fontSize: "13px" },
+  height: 300,
+  width: 500,
+  x: { label: "Slope" },
+  y: { label: "Count" },
+  marks: [
+    Plot.rectY(
+      null_dist,
+      Plot.binX(
+        { y: "count" },
+        { x: "stat", fill: clrs.navy, fillOpacity: 0.7 }
+      )
+    ),
+    Plot.ruleX([obs_stat], { stroke: "red", strokeWidth: 3 }),
+    ...statLabel(obs_stat, d => `δ = ${d.toFixed(3)}`, 20,
+      null_dist.map(d => d.stat))
+  ]
+})
 ```
 
 :::
@@ -265,32 +454,55 @@ Or alternatively, we can put the observed regression line from the actual data i
 
 ::: {style="width: 75%;"}
 
-```{webr}
-#| autorun: true
-#| echo: false
-#| input:
-#|   - step2_ready
+```{ojs}
+//| echo: false
 
-obs_coefs <- coef(lm(y ~ x, data = sample_data))
-
-ggplot(sample_data, aes(x = x, y = y)) +
-  geom_abline(
-    data = null_lines,
-    aes(intercept = intercept, slope = x),
-    color = "black",
-    linewidth = 0.01
-  ) +
-  geom_point(color = clrs[6], alpha = 0.4, size = 2) +
-  geom_abline(
-    intercept = obs_coefs[1], slope = obs_coefs[2],
-    color = "red2", linewidth = 2
-  ) +
-  labs(
-    title = "Simulated null world slopes with δ in it",
-    subtitle = paste0("δ = ", round(obs_stat$stat, 3)),
-    x = "Explanatory variable (x)",
-    y = "Outcome variable (y)"
-  )
+Plot.plot({
+  style: { fontSize: "13px" },
+  height: 300,
+  width: 500,
+  x: {
+    label: "Explanatory variable (x)",
+    domain: [0, 10]
+  },
+  y: { label: "Outcome variable (y)" },
+  marks: [
+    ...null_results.lines.map(l =>
+      Plot.line(
+        [
+          { x: 0, y: l.intercept },
+          { x: 10, y: l.intercept + l.slope * 10 }
+        ],
+        {
+          x: "x",
+          y: "y",
+          stroke: "black",
+          strokeWidth: 0.1,
+          strokeOpacity: 0.3
+        }
+      )
+    ),
+    Plot.dot(sample_data, {
+      x: "x",
+      y: "y",
+      fill: clrs.teal,
+      fillOpacity: 0.4,
+      r: 3
+    }),
+    Plot.line(
+      [
+        { x: 0, y: obs_fit.intercept },
+        { x: 10, y: obs_fit.intercept + obs_fit.slope * 10 }
+      ],
+      {
+        x: "x",
+        y: "y",
+        stroke: "red",
+        strokeWidth: 3
+      }
+    )
+  ]
+})
 ```
 
 :::
@@ -301,87 +513,123 @@ We can actually quantify the probability of seeing that red line in a null world
 
 ::: {style="width: 75%;"}
 
-```{webr}
-#| autorun: true
-#| echo: false
-#| input:
-#|   - step2_ready
-#| define:
-#|   - step4_ready
+```{ojs}
+//| echo: false
 
-p_value <- null_dist |>
-  get_p_value(obs_stat = obs_stat, direction = "two-sided") |>
-  suppressWarnings()
-
-if (p_value$p_value == 0) {
-  p_value_clean <- "< 0.001"
-  p_percent <- "< 0.1%"
-} else {
-  p_value_clean <- round(p_value$p_value, 3)
-  p_percent <- paste0(round(p_value$p_value * 100, 1), "%")
+p_value = {
+  const abs_obs = Math.abs(obs_stat);
+  const extreme = null_dist.filter(
+    d => Math.abs(d.stat) >= abs_obs
+  ).length;
+  return extreme / null_dist.length;
 }
 
-null_with_p <- null_dist |>
-  visualize() +
-  shade_p_value(obs_stat = obs_stat, direction = "two-sided") +
-  geom_label(
-    data = obs_stat,
-    aes(x = stat, y = I(0.5), label = paste0("δ =\n", round(stat, 3))),
-    size = 14,
-    size.unit = "pt",
-    lineheight = 1
-  ) +
-  geom_label(
-    data = obs_stat,
-    aes(x = stat, y = I(0.25)),
-    label = paste0("p =\n", p_value_clean),
-    size = 14,
-    size.unit = "pt",
-    lineheight = 1
-  ) +
-  labs(
-    title = "Simulated null world with δ in it",
-    x = "Slope",
-    y = "Count"
-  )
-null_with_p
+p_value_clean = p_value === 0
+  ? "< 0.001"
+  : p_value.toFixed(3)
 
-null_slope_with_p <- ggplot(sample_data, aes(x = x, y = y)) +
-  geom_abline(
-    data = null_lines,
-    aes(intercept = intercept, slope = x),
-    color = "black",
-    linewidth = 0.01
-  ) +
-  geom_point(color = clrs[6], alpha = 0.4, size = 2) +
-  geom_abline(
-    intercept = obs_coefs[1], slope = obs_coefs[2],
-    color = "red2", linewidth = 2
-  ) +
-  labs(
-    title = "Simulated null world slopes with δ in it",
-    subtitle = paste0(
-      "δ = ", round(obs_stat$stat, 3), "; p = ", p_value_clean
+p_percent = p_value === 0
+  ? "< 0.1%"
+  : (p_value * 100).toFixed(1) + "%"
+
+null_bins = {
+  const values = null_dist.map(d => d.stat);
+  const bin = d3.bin().thresholds(30);
+  const bins = bin(values);
+  const abs_obs = Math.abs(obs_stat);
+  return bins.map(b => ({
+    x0: b.x0,
+    x1: b.x1,
+    count: b.length,
+    extreme: Math.abs((b.x0 + b.x1) / 2) >= abs_obs
+  }));
+}
+
+Plot.plot({
+  style: { fontSize: "13px" },
+  height: 300,
+  width: 500,
+  x: { label: "Slope" },
+  y: { label: "Count" },
+  marks: [
+    Plot.rectY(null_bins, {
+      x1: "x0",
+      x2: "x1",
+      y: "count",
+      fill: d => d.extreme ? clrs.coral + "aa" : clrs.navy + "b3",
+      stroke: "white",
+      strokeWidth: 0.5
+    }),
+    Plot.ruleX([obs_stat], { stroke: "red", strokeWidth: 3 }),
+    ...statLabel(obs_stat, d => `δ = ${d.toFixed(3)}`, 20,
+      null_dist.map(d => d.stat)),
+    ...statLabel(obs_stat, () => `p = ${p_value_clean}`, 45,
+      null_dist.map(d => d.stat))
+  ]
+})
+```
+
+```{ojs}
+//| echo: false
+
+// Also show the slope plot with observed line
+Plot.plot({
+  style: { fontSize: "13px" },
+  height: 300,
+  width: 500,
+  x: {
+    label: "Explanatory variable (x)",
+    domain: [0, 10]
+  },
+  y: { label: "Outcome variable (y)" },
+  marks: [
+    ...null_results.lines.map(l =>
+      Plot.line(
+        [
+          { x: 0, y: l.intercept },
+          { x: 10, y: l.intercept + l.slope * 10 }
+        ],
+        {
+          x: "x",
+          y: "y",
+          stroke: "black",
+          strokeWidth: 0.1,
+          strokeOpacity: 0.3
+        }
+      )
     ),
-    x = "Explanatory variable (x)",
-    y = "Outcome variable (y)"
-  )
-null_slope_with_p
-
-step4_ready <- TRUE
-
-tags$div(
-  tags$p("The p-value is ", tags$strong(p_value_clean)),
-  tags$p(
-    "This means that in a world where there is no relationship between x and y, there is a ",
-    tags$strong(p_percent),
-    " chance of seeing a slope of at least ",
-    tags$strong(round(obs_stat$stat, 3))
-  )
-)
+    Plot.dot(sample_data, {
+      x: "x",
+      y: "y",
+      fill: clrs.teal,
+      fillOpacity: 0.4,
+      r: 3
+    }),
+    Plot.line(
+      [
+        { x: 0, y: obs_fit.intercept },
+        { x: 10, y: obs_fit.intercept + obs_fit.slope * 10 }
+      ],
+      {
+        x: "x",
+        y: "y",
+        stroke: "red",
+        strokeWidth: 3
+      }
+    )
+  ]
+})
 ```
 
 :::
+
+The p-value is **`{ojs} p_value_clean`**
+
+```{ojs}
+//| echo: false
+
+html`<p>This means that in a world where there is no relationship between x and y, there is a <strong>${p_percent}</strong> chance of seeing a slope of at least <strong>${obs_stat_abs}</strong></p>`
+```
 
 ## Step 5: Decision
 
@@ -391,6 +639,7 @@ There are lots of possible thresholds. By convention, most people use a threshol
 
 ```{ojs}
 //| echo: false
+
 viewof alpha = Inputs.select([0.10, 0.05, 0.01], {
   label: "Significance threshold (α):",
   value: 0.05
@@ -401,72 +650,27 @@ viewof alpha = Inputs.select([0.10, 0.05, 0.01], {
 
 ::: {.g-col-12 .g-col-md-6}
 
-```{webr}
-#| autorun: true
-#| echo: false
-#| input:
-#|   - step4_ready
-#|   - alpha
+```{ojs}
+//| echo: false
 
-if (p_value$p_value < alpha) {
-  tags$div(
-    class = "alert alert-success",
-    role = "alert",
-    tags$h5(class = "alert-heading", "Statistically significant"),
-    tags$p(
-      "The p-value is ",
-      tags$strong(p_value_clean),
-      "and our threshold for α is ",
-      tags$strong(alpha)
-    ),
-    tags$p(
-      "In a world where there is no relationship between x and y, the probability of seeing a slope of at least ",
-      tags$strong(round(obs_stat$stat, 3)),
-      "is ",
-      tags$strong(p_percent)
-    ),
-    tags$p(
-      "Since ",
-      p_value_clean,
-      " is less than ",
-      alpha,
-      ", we have enough evidence to say that the slope is ",
-      tags$strong("statistically significant.")
-    )
-  )
-} else {
-  tags$div(
-    class = "alert alert-warning",
-    role = "alert",
-    tags$h5(class = "alert-heading", "Not statistically significant"),
-    tags$p(
-      "The p-value is ",
-      tags$strong(p_value_clean),
-      "and our threshold for α is ",
-      tags$strong(alpha)
-    ),
-    tags$p(
-      "In a world where there is no relationship between x and y, the probability of seeing a slope of at least ",
-      tags$strong(round(obs_stat$stat, 3)),
-      "is ",
-      tags$strong(p_percent)
-    ),
-    tags$p(
-      "Since ",
-      p_value_clean,
-      " is greater than ",
-      alpha,
-      ", we don't have enough evidence to say that the slope doesn't come from the null world. The slope is thus ",
-      tags$strong("not statistically significant.")
-    ),
-    tags$hr(),
-    tags$p(
-      style = "font-size: 0.9em;",
-      "This does ",
-      tags$strong("not"),
-      " mean that there is no relationship between x and y! We just don't have enough evidence to judge if there's a relationship."
-    )
-  )
+{
+  if (p_value < alpha) {
+    return html`<div class="alert alert-success" role="alert">
+      <h5 class="alert-heading">Statistically significant</h5>
+      <p>The p-value is <strong>${p_value_clean}</strong> and our threshold for α is <strong>${alpha}</strong></p>
+      <p>In a world where there is no relationship between x and y, the probability of seeing a slope of at least <strong>${obs_stat_abs}</strong> is <strong>${p_percent}</strong></p>
+      <p>Since ${p_value_clean} is less than ${alpha}, we have enough evidence to say that the slope is <strong>statistically significant.</strong></p>
+    </div>`;
+  } else {
+    return html`<div class="alert alert-warning" role="alert">
+      <h5 class="alert-heading">Not statistically significant</h5>
+      <p>The p-value is <strong>${p_value_clean}</strong> and our threshold for α is <strong>${alpha}</strong></p>
+      <p>In a world where there is no relationship between x and y, the probability of seeing a slope of at least <strong>${obs_stat_abs}</strong> is <strong>${p_percent}</strong></p>
+      <p>Since ${p_value_clean} is greater than ${alpha}, we don't have enough evidence to say that the slope doesn't come from the null world. The slope is thus <strong>not statistically significant.</strong></p>
+      <hr>
+      <p style="font-size: 0.9em;">This does <strong>not</strong> mean that there is no relationship between x and y! We just don't have enough evidence to judge if there's a relationship.</p>
+    </div>`;
+  }
 }
 ```
 
@@ -474,15 +678,76 @@ if (p_value$p_value < alpha) {
 
 ::: {.g-col-12 .g-col-md-6}
 
-```{webr}
-#| autorun: true
-#| echo: false
-#| input:
-#|   - step4_ready
+```{ojs}
+//| echo: false
 
-null_with_p
+Plot.plot({
+  style: { fontSize: "13px" },
+  height: 300,
+  x: { label: "Slope" },
+  y: { label: "Count" },
+  marks: [
+    Plot.rectY(null_bins, {
+      x1: "x0",
+      x2: "x1",
+      y: "count",
+      fill: d => d.extreme ? clrs.coral + "aa" : clrs.navy + "b3",
+      stroke: "white",
+      strokeWidth: 0.5
+    }),
+    Plot.ruleX([obs_stat], { stroke: "red", strokeWidth: 3 }),
+    ...statLabel(obs_stat, d => `δ = ${d.toFixed(3)}`, 20,
+      null_dist.map(d => d.stat)),
+    ...statLabel(obs_stat, () => `p = ${p_value_clean}`, 45,
+      null_dist.map(d => d.stat))
+  ]
+})
 
-null_slope_with_p
+Plot.plot({
+  style: { fontSize: "13px" },
+  height: 300,
+  x: {
+    label: "Explanatory variable (x)",
+    domain: [0, 10]
+  },
+  y: { label: "Outcome variable (y)" },
+  marks: [
+    ...null_results.lines.map(l =>
+      Plot.line(
+        [
+          { x: 0, y: l.intercept },
+          { x: 10, y: l.intercept + l.slope * 10 }
+        ],
+        {
+          x: "x",
+          y: "y",
+          stroke: "black",
+          strokeWidth: 0.1,
+          strokeOpacity: 0.3
+        }
+      )
+    ),
+    Plot.dot(sample_data, {
+      x: "x",
+      y: "y",
+      fill: clrs.teal,
+      fillOpacity: 0.4,
+      r: 3
+    }),
+    Plot.line(
+      [
+        { x: 0, y: obs_fit.intercept },
+        { x: 10, y: obs_fit.intercept + obs_fit.slope * 10 }
+      ],
+      {
+        x: "x",
+        y: "y",
+        stroke: "red",
+        strokeWidth: 3
+      }
+    )
+  ]
+})
 ```
 
 :::

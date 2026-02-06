@@ -39,7 +39,7 @@ https://moderndive.com/v2/hypothesis-testing.html#ht-case-study - This workflow 
 - [Difference in Proportions](diff-in-props.qmd)
 - [Regression Slope](regression.qmd)
 - [One-Sample Mean](one-sample-mean.qmd)
-- [Theoretical P-values](regular-p-values.qmd)
+- [Regular P-values](regular-p-values.qmd)
 
 
 ::: {style="font-size: 80%; text-align: right;"}

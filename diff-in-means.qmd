@@ -1,45 +1,60 @@
 ---
 title: "Difference in means"
 page-layout: custom
-format: 
-  live-html:
-    include-in-header: 
+format:
+  html:
+    include-in-header:
       - text: |
           <style>
           #quarto-content {
             padding: 1em 1.5em;
           }
           </style>
-engine: knitr
 ---
 
-{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
+```{ojs}
+//| echo: false
 
-```{webr}
-#| edit: false
-#| output: false
+jstat = require("jstat@1.9.6")
 
-library(Hmisc)
-library(infer)
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-library(ggdist)
-library(forcats)
-library(htmltools)
-library(gt)
-library(parameters)
+clrs = ({
+  gold: "#f3d567",
+  orange: "#ee9b43",
+  coral: "#e74b47",
+  crimson: "#b80422",
+  navy: "#172767",
+  teal: "#19798b"
+})
 
-options(webr.fig.height = 4)
-ggplot2::theme_set(ggplot2::theme_minimal(base_size = 14))
+function statLabel(value, textFn, dy, nullValues) {
+  const extent = d3.extent([...nullValues, value]);
+  const range = extent[1] - extent[0];
+  const pos = range === 0 ? 0.5 :
+    (value - extent[0]) / range;
+  const textAnchor = pos > 0.82 ? "end" :
+    pos < 0.18 ? "start" : "middle";
+  const dx = textAnchor === "end" ? -10 :
+    textAnchor === "start" ? 10 : 0;
 
-# From MoMAColors::moma.colors("OKeeffe")
-clrs <- c("#f3d567", "#ee9b43", "#e74b47", "#b80422", "#172767", "#19798b")
+  const common = {
+    x: d => d, frameAnchor: "top", dy, dx,
+    text: textFn,
+    fontWeight: "bold", fontSize: 14,
+    textAnchor, paintOrder: "stroke"
+  };
+
+  return [
+    Plot.text([value], {
+      ...common,
+      stroke: "white", strokeWidth: 4, fill: "black"
+    })
+  ];
+}
 ```
 
 ::::::: {.grid}
 
-::::: {.g-col-12 .g-col-md-4}
+::::: {.g-col-12 .g-col-md-4 .sticky}
 
 ```{ojs}
 //| echo: false
@@ -55,34 +70,91 @@ viewof effect_size = Inputs.range([-10, 10], {
   value: 5,
   label: "Difference:"
 })
+
+viewof spread = Inputs.range([1, 30], {
+  step: 1,
+  value: 10,
+  label: "Spread (σ):"
+})
 ```
 
-```{webr}
-#| autorun: true
-#| echo: false
-#| input:
-#|   - sample_size
-#|   - effect_size
-#| define:
-#|   - data_ready
+```{ojs}
+//| echo: false
 
-sample_data <- tibble(
-  group = sample(c("A", "B"), sample_size, replace = TRUE)
-) |>
-  mutate(
-    outcome = case_when(
-      group == "A" ~ rnorm(n(), mean = 50, sd = 10),
-      group == "B" ~ rnorm(n(), mean = 50 + effect_size, sd = 10)
-    )
-  )
+sample_data = {
+  const data = [];
+  for (let i = 0; i < sample_size; i++) {
+    const group = Math.random() < 0.5 ? "A" : "B";
+    const mean = group === "A" ? 50 : 50 + effect_size;
+    data.push({
+      group,
+      outcome: jstat.normal.sample(mean, spread)
+    });
+  }
+  return data;
+}
 
-data_ready <- TRUE
-
-ggplot(sample_data, aes(x = outcome, y = fct_rev(group), fill = group)) +
-  stat_histinterval(slab_color = "white", slab_linewidth = 0.5, outline_bars = TRUE, breaks = breaks_fixed(width = 3)) + 
-  scale_fill_manual(values = c(clrs[5], clrs[2]), guide = "none") + 
-  labs(x = "Outcome", y = NULL)
-# sample_data
+Plot.plot({
+  style: { fontSize: "13px" },
+  marginLeft: 50,
+  height: 280,
+  x: { label: "Outcome" },
+  y: { label: null },
+  fy: { label: null, domain: ["A", "B"] },
+  color: {
+    domain: ["A", "B"],
+    range: [clrs.navy, clrs.orange]
+  },
+  marks: [
+    Plot.rectY(
+      sample_data,
+      Plot.binX(
+        { y: "count" },
+        {
+          x: "outcome",
+          fill: "group",
+          fy: "group",
+          thresholds: 20
+        }
+      )
+    ),
+    Plot.ruleX(
+      [
+        { value: group_stats.meanA, group: "A" },
+        { value: group_stats.meanB, group: "B" }
+      ],
+      {
+        x: "value",
+        fy: "group",
+        stroke: "black",
+        strokeWidth: 2.5,
+        strokeDasharray: "4,3"
+      }
+    ),
+    Plot.text(
+      [
+        { value: group_stats.meanA, group: "A",
+          label: group_stats.meanA.toFixed(1) },
+        { value: group_stats.meanB, group: "B",
+          label: group_stats.meanB.toFixed(1) }
+      ],
+      {
+        x: "value",
+        fy: "group",
+        text: "label",
+        frameAnchor: "top",
+        dy: 12,
+        fontSize: 14,
+        fontWeight: "bold",
+        fill: "black",
+        stroke: "white",
+        strokeWidth: 4,
+        paintOrder: "stroke"
+      }
+    ),
+    Plot.ruleY([0])
+  ]
+})
 ```
 
 :::::
@@ -95,74 +167,86 @@ ggplot(sample_data, aes(x = outcome, y = fct_rev(group), fill = group)) +
 
 The sample statistic (δ) is the **difference in means** between the two groups.
 
-```{webr}
-#| autorun: true
-#| echo: false
-#| input:
-#|   - data_ready
-#| define:
-#|   - step1_ready
+```{ojs}
+//| echo: false
 
-obs_stat <- sample_data |>
-  specify(outcome ~ group) |>
-  calculate(stat = "diff in means", order = c("B", "A"))
+group_stats = {
+  const groups = { A: [], B: [] };
+  for (const d of sample_data) {
+    groups[d.group].push(d.outcome);
+  }
 
-stat_details <- lm(outcome ~ group, data = sample_data) |>
-  model_parameters(keep = "group", verbose = FALSE) |>
-  as_tibble() |>
-  mutate(group = "Difference (B − A)") |>
-  select(group, avg = Coefficient, CI_low, CI_high)
+  const meanA = d3.mean(groups.A);
+  const meanB = d3.mean(groups.B);
+  const nA = groups.A.length;
+  const nB = groups.B.length;
 
-averages <- sample_data |>
-  group_by(group) |>
-  reframe(
-    ci = list(ggplot2::mean_cl_normal(outcome)),
-    n = n()
-  ) |> 
-  unnest(cols = ci) |>
-  select(group, n, avg = y, CI_low = ymin, CI_high = ymax) |>
-  bind_rows(stat_details)
+  const seA = d3.deviation(groups.A) / Math.sqrt(nA);
+  const seB = d3.deviation(groups.B) / Math.sqrt(nB);
+  const ciA = [
+    meanA - 1.96 * seA,
+    meanA + 1.96 * seA
+  ];
+  const ciB = [
+    meanB - 1.96 * seB,
+    meanB + 1.96 * seB
+  ];
 
-step1_ready <- TRUE
+  const diff = meanB - meanA;
+  const seDiff = Math.sqrt(
+    seA * seA + seB * seB
+  );
+  const ciDiff = [
+    diff - 1.96 * seDiff,
+    diff + 1.96 * seDiff
+  ];
 
-tags$p(
-  "The difference in means is ", 
-  tags$strong(round(obs_stat$stat, 2)),
-  "."
-)
+  return {
+    meanA, meanB, nA, nB, diff,
+    ciA, ciB, ciDiff
+  };
+}
 
-averages |>
-  gt() |>
-  cols_label(
-    group = "Group",
-    n = "N",
-    avg = "Average",
-    CI_low = "95% CI"
-  ) |>
-  cols_hide(columns = c(CI_high)) |>
-  cols_merge(
-    columns = c(CI_low, CI_high),
-    pattern = "[{1}, {2}]"
-  ) |>
-  fmt_number(columns = c(avg, CI_low, CI_high), decimals = 2) |>
-  sub_missing(missing_text = "") |>
-  tab_style(
-    style = cell_fill(color = clrs[5], alpha = 0.1),
-    locations = cells_body(rows = group == "A")
-  ) |>
-  tab_style(
-    style = cell_fill(color = clrs[2], alpha = 0.1),
-    locations = cells_body(rows = group == "B")
-  ) |>
-  tab_style(
-    style = list(
-      cell_text(weight = "bold", color = "white"),
-      cell_fill(color = clrs[4])
-    ),
-    locations = cells_body(rows = 3)
-  ) |> 
-  opt_horizontal_padding(scale = 3) |>
-  opt_table_font(font = "Atkinson Hyperlegible") 
+obs_stat = group_stats.diff
+
+obs_stat_abs = Math.abs(obs_stat).toFixed(2)
+```
+
+The difference in means is **`{ojs} obs_stat.toFixed(2)`**.
+
+```{ojs}
+//| echo: false
+
+html`<table class="table table-sm" style="max-width: 500px;">
+  <thead>
+    <tr>
+      <th>Group</th>
+      <th>N</th>
+      <th>Average</th>
+      <th>95% CI</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="background-color: ${clrs.navy}11;">
+      <td>A</td>
+      <td>${group_stats.nA}</td>
+      <td>${group_stats.meanA.toFixed(2)}</td>
+      <td>[${group_stats.ciA[0].toFixed(2)}, ${group_stats.ciA[1].toFixed(2)}]</td>
+    </tr>
+    <tr style="background-color: ${clrs.orange}22;">
+      <td>B</td>
+      <td>${group_stats.nB}</td>
+      <td>${group_stats.meanB.toFixed(2)}</td>
+      <td>[${group_stats.ciB[0].toFixed(2)}, ${group_stats.ciB[1].toFixed(2)}]</td>
+    </tr>
+    <tr style="background-color: ${clrs.crimson}; color: white; font-weight: bold;">
+      <td>Difference (B − A)</td>
+      <td></td>
+      <td>${group_stats.diff.toFixed(2)}</td>
+      <td>[${group_stats.ciDiff[0].toFixed(2)}, ${group_stats.ciDiff[1].toFixed(2)}]</td>
+    </tr>
+  </tbody>
+</table>`
 ```
 
 ## Step 2: Simulate null world
@@ -171,10 +255,86 @@ We create a null distribution by shuffling (or "permuting" to use the official s
 
 Think of this as being a world where there are no differences between the two groups. Importantly, this *doesn't* mean that the measured difference between the groups is *exactly* 0. There is variation in the data, and that variation is reflected in the null world. What it means is that in the null world, the difference between the two groups is 0 ± some amount.
 
+Here's what one shuffle looks like. Notice that the outcome values stay the same—only the group labels get reassigned:
+
+```{ojs}
+//| echo: false
+
+viewof reshuffle = Inputs.button("Reshuffle")
+```
+
+```{ojs}
+//| echo: false
+
+shuffle_preview = {
+  reshuffle;
+  const subset = sample_data.slice(0, 8);
+  const groups = subset.map(d => d.group);
+  const shuffled = groups.slice();
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return {
+    original: subset.map((d, i) => ({
+      " ": i + 1,
+      Group: d.group,
+      Outcome: +d.outcome.toFixed(1)
+    })),
+    shuffled: subset.map((d, i) => ({
+      " ": i + 1,
+      Group: shuffled[i],
+      Outcome: +d.outcome.toFixed(1)
+    }))
+  };
+}
+```
+
+::::: {.grid}
+
+:::: {.g-col-6}
+
+**Original data**
+
+```{ojs}
+//| echo: false
+
+Inputs.table(shuffle_preview.original, {
+  columns: [" ", "Group", "Outcome"],
+  rows: 8,
+  sort: false,
+  select: false
+})
+```
+
+::::
+
+:::: {.g-col-6}
+
+**Shuffled data**
+
+```{ojs}
+//| echo: false
+
+Inputs.table(shuffle_preview.shuffled, {
+  columns: [" ", "Group", "Outcome"],
+  rows: 8,
+  sort: false,
+  select: false
+})
+```
+
+::::
+
+:::::
+
+When we do this shuffle hundreds of times and compute the difference in means each time, we get a **null distribution**—a picture of what differences look like in a world where groups don't matter.
+
 Here's what this null world looks like:
 
 ```{ojs}
 //| echo: false
+
 viewof n_reps = Inputs.range([100, 2000], {
   step: 100,
   value: 500,
@@ -184,31 +344,54 @@ viewof n_reps = Inputs.range([100, 2000], {
 
 ::: {style="width: 75%;"}
 
-```{webr}
-#| autorun: true
-#| echo: false
-#| out-width: 50%
-#| input:
-#|   - step1_ready
-#|   - n_reps
-#| define:
-#|   - step2_ready
+```{ojs}
+//| echo: false
 
-null_dist <- sample_data |>
-  specify(outcome ~ group) |>
-  hypothesize(null = "independence") |>
-  generate(reps = n_reps, type = "permute") |>
-  calculate(stat = "diff in means", order = c("B", "A"))
+null_dist = {
+  const outcomes = sample_data.map(d => d.outcome);
+  const groups = sample_data.map(d => d.group);
+  const n = outcomes.length;
+  const results = [];
 
-step2_ready <- TRUE
+  for (let r = 0; r < n_reps; r++) {
+    // Fisher-Yates shuffle of group labels
+    const shuffled = groups.slice();
+    for (let i = n - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
 
-null_dist |>
-  visualize() + 
-  labs(
-    title = "Simulated null world", 
-    x = "Difference (B − A)", 
-    y = "Count"
-  )
+    let sumA = 0, nA = 0, sumB = 0, nB = 0;
+    for (let i = 0; i < n; i++) {
+      if (shuffled[i] === "B") {
+        sumB += outcomes[i];
+        nB++;
+      } else {
+        sumA += outcomes[i];
+        nA++;
+      }
+    }
+    results.push({ stat: sumB / nB - sumA / nA });
+  }
+  return results;
+}
+
+Plot.plot({
+  style: { fontSize: "13px" },
+  height: 300,
+  width: 500,
+  x: { label: "Difference (B − A)" },
+  y: { label: "Count" },
+  marks: [
+    Plot.rectY(
+      null_dist,
+      Plot.binX(
+        { y: "count" },
+        { x: "stat", fill: clrs.navy, fillOpacity: 0.7 }
+      )
+    )
+  ]
+})
 ```
 
 :::
@@ -221,27 +404,28 @@ Is it surprising to see the red line in this null world? Is the line way out to 
 
 ::: {style="width: 75%;"}
 
-```{webr}
-#| autorun: true
-#| echo: false
-#| input:
-#|   - step2_ready
+```{ojs}
+//| echo: false
 
-null_dist |>
-  visualize() +
-  geom_vline(xintercept = obs_stat$stat, color = "red2", linewidth = 2) +
-  geom_label(
-    data = obs_stat,
-    aes(x = stat, y = I(0.5), label = paste0("δ =\n", round(stat, 2))),
-    size = 14,
-    size.unit = "pt",
-    lineheight = 1
-  ) +
-  labs(
-    title = "Simulated null world with δ in it",
-    x = "Difference (B − A)",
-    y = "Count"
-  )
+Plot.plot({
+  style: { fontSize: "13px" },
+  height: 300,
+  width: 500,
+  x: { label: "Difference (B − A)" },
+  y: { label: "Count" },
+  marks: [
+    Plot.rectY(
+      null_dist,
+      Plot.binX(
+        { y: "count" },
+        { x: "stat", fill: clrs.navy, fillOpacity: 0.7 }
+      )
+    ),
+    Plot.ruleX([obs_stat], { stroke: "red", strokeWidth: 3 }),
+    ...statLabel(obs_stat, d => `δ = ${d.toFixed(2)}`, 20,
+      null_dist.map(d => d.stat))
+  ]
+})
 ```
 
 :::
@@ -252,62 +436,70 @@ We can actually quantify the probability of seeing that red line in a null world
 
 ::: {style="width: 75%;"}
 
-```{webr}
-#| autorun: true
-#| echo: false
-#| input:
-#|   - step2_ready
-#| define:
-#|   - step4_ready
+```{ojs}
+//| echo: false
 
-p_value <- null_dist |>
-  get_p_value(obs_stat = obs_stat, direction = "two-sided") |>
-  suppressWarnings()
-
-if (p_value$p_value == 0) {
-  p_value_clean <- "< 0.001"
-  p_percent <- "< 0.1%"
-} else {
-  p_value_clean <- round(p_value$p_value, 3)
-  p_percent <- paste0(round(p_value$p_value * 100, 1), "%")
+p_value = {
+  const abs_obs = Math.abs(obs_stat);
+  const extreme = null_dist.filter(
+    d => Math.abs(d.stat) >= abs_obs
+  ).length;
+  return extreme / null_dist.length;
 }
 
-null_with_p <- null_dist |>
-  visualize() +
-  shade_p_value(obs_stat = obs_stat, direction = "two-sided") +
-  geom_label(
-    data = obs_stat,
-    aes(x = stat, y = I(0.5), label = paste0("δ =\n", round(stat, 2))),
-    size = 14,
-    size.unit = "pt",
-    lineheight = 1
-  ) +
-  geom_label(
-    data = obs_stat,
-    aes(x = stat, y = I(0.25)),
-    label = paste0("p =\n", p_value_clean),
-    size = 14,
-    size.unit = "pt",
-    lineheight = 1
-  ) +
-  labs(
-    title = "Simulated null world with δ in it",
-    x = "Difference (B − A)",
-    y = "Count"
-  )
-null_with_p
+p_value_clean = p_value === 0
+  ? "< 0.001"
+  : p_value.toFixed(3)
 
-step4_ready <- TRUE
+p_percent = p_value === 0
+  ? "< 0.1%"
+  : (p_value * 100).toFixed(1) + "%"
 
-tags$div(
-  tags$p("The p-value is ", tags$strong(p_value_clean)),
-  tags$p(
-    "This means that in a world where there is no difference between the groups, there is a ",
-    tags$strong(p_percent),
-    " chance of seeing a difference of at least ",
-    tags$strong(round(obs_stat$stat, 2))
-  )
-)
+// Pre-bin the null distribution so entire bins get colored
+null_bins = {
+  const values = null_dist.map(d => d.stat);
+  const bin = d3.bin().thresholds(30);
+  const bins = bin(values);
+  const abs_obs = Math.abs(obs_stat);
+  return bins.map(b => ({
+    x0: b.x0,
+    x1: b.x1,
+    count: b.length,
+    midpoint: (b.x0 + b.x1) / 2,
+    extreme: Math.abs((b.x0 + b.x1) / 2) >= abs_obs
+  }));
+}
+
+Plot.plot({
+  style: { fontSize: "13px" },
+  height: 300,
+  width: 500,
+  x: { label: "Difference (B − A)" },
+  y: { label: "Count" },
+  marks: [
+    Plot.rectY(null_bins, {
+      x1: "x0",
+      x2: "x1",
+      y: "count",
+      fill: d => d.extreme ? clrs.coral + "aa" : clrs.navy + "b3",
+      stroke: "white",
+      strokeWidth: 0.5
+    }),
+    Plot.ruleX([obs_stat], { stroke: "red", strokeWidth: 3 }),
+    ...statLabel(obs_stat, d => `δ = ${d.toFixed(2)}`, 20,
+      null_dist.map(d => d.stat)),
+    ...statLabel(obs_stat, () => `p = ${p_value_clean}`, 45,
+      null_dist.map(d => d.stat))
+  ]
+})
+```
+
+The p-value is **`{ojs} p_value_clean`**
+
+```{ojs}
+//| echo: false
+
+html`<p>This means that in a world where there is no difference between the groups, there is a <strong>${p_percent}</strong> chance of seeing a difference of at least <strong>${obs_stat_abs}</strong></p>`
 ```
 
 :::
@@ -320,6 +512,7 @@ There are lots of possible thresholds. By convention, most people use a threshol
 
 ```{ojs}
 //| echo: false
+
 viewof alpha = Inputs.select([0.10, 0.05, 0.01], {
   label: "Significance threshold (α):",
   value: 0.05
@@ -330,72 +523,27 @@ viewof alpha = Inputs.select([0.10, 0.05, 0.01], {
 
 ::: {.g-col-12 .g-col-md-6}
 
-```{webr}
-#| autorun: true
-#| echo: false
-#| input:
-#|   - step4_ready
-#|   - alpha
+```{ojs}
+//| echo: false
 
-if (p_value$p_value < alpha) {
-  tags$div(
-    class = "alert alert-success",
-    role = "alert",
-    tags$h5(class = "alert-heading", "Statistically significant"),
-    tags$p(
-      "The p-value is ",
-      tags$strong(p_value_clean),
-      "and our threshold for α is ",
-      tags$strong(alpha)
-    ),
-    tags$p(
-      "In a world where there is no difference between the groups, the probability of seeing a difference of at least ",
-      tags$strong(round(obs_stat$stat, 2)),
-      "is ",
-      tags$strong(p_percent)
-    ),
-    tags$p(
-      "Since ",
-      p_value_clean,
-      " is less than ",
-      alpha,
-      ", we have enough evidence to say that the difference is ",
-      tags$strong("statistically significant.")
-    )
-  )
-} else {
-  tags$div(
-    class = "alert alert-warning",
-    role = "alert",
-    tags$h5(class = "alert-heading", "Not statistically significant"),
-    tags$p(
-      "The p-value is ",
-      tags$strong(p_value_clean),
-      "and our threshold for α is ",
-      tags$strong(alpha)
-    ),
-    tags$p(
-      "In a world where there is no difference between the groups, the probability of seeing a difference of at least ",
-      tags$strong(round(obs_stat$stat, 2)),
-      "is ",
-      tags$strong(p_percent)
-    ),
-    tags$p(
-      "Since ",
-      p_value_clean,
-      " is greater than ",
-      alpha,
-      ", we don't have enough evidence to say that the difference doesn't come from the null world. The difference is thus ",
-      tags$strong("not statistically significant.")
-    ),
-    tags$hr(),
-    tags$p(
-      style = "font-size: 0.9em;",
-      "This does ",
-      tags$strong("not"),
-      " mean that there is no difference between the groups! We just don't have enough evidence to judge if there's a difference."
-    )
-  )
+{
+  if (p_value < alpha) {
+    return html`<div class="alert alert-success" role="alert">
+      <h5 class="alert-heading">Statistically significant</h5>
+      <p>The p-value is <strong>${p_value_clean}</strong> and our threshold for α is <strong>${alpha}</strong></p>
+      <p>In a world where there is no difference between the groups, the probability of seeing a difference of at least <strong>${obs_stat_abs}</strong> is <strong>${p_percent}</strong></p>
+      <p>Since ${p_value_clean} is less than ${alpha}, we have enough evidence to say that the difference is <strong>statistically significant.</strong></p>
+    </div>`;
+  } else {
+    return html`<div class="alert alert-warning" role="alert">
+      <h5 class="alert-heading">Not statistically significant</h5>
+      <p>The p-value is <strong>${p_value_clean}</strong> and our threshold for α is <strong>${alpha}</strong></p>
+      <p>In a world where there is no difference between the groups, the probability of seeing a difference of at least <strong>${obs_stat_abs}</strong> is <strong>${p_percent}</strong></p>
+      <p>Since ${p_value_clean} is greater than ${alpha}, we don't have enough evidence to say that the difference doesn't come from the null world. The difference is thus <strong>not statistically significant.</strong></p>
+      <hr>
+      <p style="font-size: 0.9em;">This does <strong>not</strong> mean that there is no difference between the groups! We just don't have enough evidence to judge if there's a difference.</p>
+    </div>`;
+  }
 }
 ```
 
@@ -403,13 +551,30 @@ if (p_value$p_value < alpha) {
 
 ::: {.g-col-12 .g-col-md-6}
 
-```{webr}
-#| autorun: true
-#| echo: false
-#| input:
-#|   - step4_ready
+```{ojs}
+//| echo: false
 
-null_with_p
+Plot.plot({
+  style: { fontSize: "13px" },
+  height: 300,
+  x: { label: "Difference (B − A)" },
+  y: { label: "Count" },
+  marks: [
+    Plot.rectY(null_bins, {
+      x1: "x0",
+      x2: "x1",
+      y: "count",
+      fill: d => d.extreme ? clrs.coral + "aa" : clrs.navy + "b3",
+      stroke: "white",
+      strokeWidth: 0.5
+    }),
+    Plot.ruleX([obs_stat], { stroke: "red", strokeWidth: 3 }),
+    ...statLabel(obs_stat, d => `δ = ${d.toFixed(2)}`, 20,
+      null_dist.map(d => d.stat)),
+    ...statLabel(obs_stat, () => `p = ${p_value_clean}`, 45,
+      null_dist.map(d => d.stat))
+  ]
+})
 ```
 
 :::

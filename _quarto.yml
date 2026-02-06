@@ -2,7 +2,6 @@ project:
   type: website
   render:
     - "*.qmd"
-    - "!resources/"
   preview:
     port: 7777
 
@@ -28,7 +27,7 @@ website:
     right:
       - icon: github
         href: "https://github.com/andrewheiss/null-world-testing"
-  
+
   page-footer:
     border: false
     background: "#dddddd"
@@ -39,7 +38,7 @@ website:
     center: "◎◉○"
 
 format:
-  live-html:
+  html:
     theme:
       - zephyr
       - brand

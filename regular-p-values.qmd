@@ -3,8 +3,6 @@ title: "Regular p-values"
 toc: true
 toc-depth: 2
 code-fold: true
-filters:
-  - output-styling
 ---
 
 ```{r setup, include=FALSE}
