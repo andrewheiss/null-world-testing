@@ -207,7 +207,7 @@ window.Quarto = {
 <li><strong>Step 1: Calculate a sample statistic, or <span class="math inline">\(\delta\)</span> (“delta”).</strong> This is the main measure you care about: the difference in means, the average, the median, the proportion, the difference in proportions, the chi-squared value, the slope in a regression model, etc.</li>
 <li><strong>Step 2: Use simulation to invent a world where <span class="math inline">\(\delta\)</span> is null.</strong> Simulate what the world would look like if there was no difference or relationship between two groups, or if there was no difference in proportions, or where the average value is a specific number.</li>
 <li><strong>Step 3: Look at <span class="math inline">\(\delta\)</span> in the null world.</strong> Put the sample statistic in the null world and see if it fits well.</li>
-<li><strong>Step 4: Calculate the probability that <span class="math inline">\(\delta\)</span> could exist in null world.</strong> This is the p-value, or the probability that you’d see a <span class="math inline">\(\delta\)</span> at least that high in a world where there’s no difference.</li>
+<li><strong>Step 4: Calculate the probability that <span class="math inline">\(\delta\)</span> could exist in null world.</strong> This is the p-value, or the probability that you’d see a <span class="math inline">\(\delta\)</span> at least as extreme in a world where there’s no difference.</li>
 <li><strong>Step 5: Decide if <span class="math inline">\(\delta\)</span> is statistically significant.</strong> Choose some evidentiary standard or threshold for deciding if there’s sufficient proof for rejecting the null world. Standard thresholds (from least to most rigorous) are 0.1, 0.05, and 0.01.</li>
 </ul>
 <p>That’s all. Five steps. No need to follow <a href="https://www.google.com/search?q=statistical+test+flow+chart">complicated flowcharts to select the best and most appropriate statistical test</a>. No need to decide which pretests you need to run to choose the right flavor of <em>t</em>-test. No need to think about whether you should use a <em>t</em>- or a <em>z</em>- distribution for your test statistic. Simulate instead.</p>
@@ -225,25 +225,52 @@ window.Quarto = {
 </div>
 </div>
 </section>
-<section id="why-does-this-work" class="level2">
-<h2 data-anchor-id="why-does-this-work">Why does this work?</h2>
-<p>Allen Downey</p>
-<p>Richard McElreath</p>
-<p>{infer}</p>
-<p>ModernDive - https://moderndive.com/v2/hypothesis-testing.html#ht-case-study</p>
-</section>
 <section id="example-simulations" class="level2">
 <h2 data-anchor-id="example-simulations">Example simulations</h2>
+<p>This site contains a few different illustrations of common statistical tests:</p>
 <ul>
 <li><a href="./diff-in-means.html">Difference in means</a></li>
 <li><a href="./diff-in-props.html">Difference in proportions</a></li>
 <li><a href="./regression.html">Regression slope</a></li>
 <li><a href="./one-sample-mean.html">One-sample mean</a></li>
 </ul>
-<p>IRL thing</p>
+</section>
+<section id="do-i-have-to-simulate-everything" class="level2">
+<h2 data-anchor-id="do-i-have-to-simulate-everything">Do I have to simulate everything?</h2>
+<p>No!</p>
+<p>You <em>can</em> use <a href="https://infer.netlify.app/">the {infer} package</a> in R to conduct simulation-based hypothesis tests yourself with your own data.</p>
+<p>But—most likely—you’ll never actually do your own simulation-based testing (which is fine!). Thinking about null worlds is still <em>extremely valuable</em> for understanding the intuition behind hypothesis testing and p-values. This page shows the same tests using regular statistical functions, but interprets the p-values using the same null world logic:</p>
 <ul>
 <li><a href="./regular-p-values.html">Regular P-values</a></li>
 </ul>
+</section>
+<section id="why-does-this-work" class="level2">
+<h2 data-anchor-id="why-does-this-work">Why does this work?</h2>
+<p>TODO</p>
+<p>Allen Downey</p>
+<p>Richard McElreath</p>
+<p>{infer}</p>
+<p>ModernDive - https://moderndive.com/v2/hypothesis-testing.html#ht-case-study</p>
+</section>
+<section id="this-all-feels-vaguely-bayesian" class="level2">
+<h2 data-anchor-id="this-all-feels-vaguely-bayesian">This all feels vaguely Bayesian?</h2>
+<p>Yep. All this simulation thinking is actually part of my clandestine plot to get more people curious about Bayesian statistics. This way of thinking prepares you for Bayesian inference, without actually being Bayesian.</p>
+<p>This simulation-based approach mirrors a lot of the computational thinking behind Bayesian statistics. In both approaches, we:</p>
+<ul>
+<li>Start with an explicit data-generating process</li>
+<li>Think about uncertainty with simulation instead of formulas</li>
+<li>Compare observed data to a distribution</li>
+</ul>
+<p>But there’s an important difference in what we’re simulating!</p>
+<p>With traditional null hypothesis testing, we simulate a null world and ask:</p>
+<blockquote class="blockquote">
+<p>If this were the world we lived in, how surprising would our observed <span class="math inline">\(\delta\)</span> be?</p>
+</blockquote>
+<p>Bayesian statistics flips this. Instead of asking how extreme our data (or <span class="math inline">\(\delta\)</span>) is in a single null world, we model uncertainty about the parameter <span class="math inline">\(\delta\)</span> itself. After combining prior beliefs with observed data, we get a posterior distribution that we can simulate from to ask:</p>
+<blockquote class="blockquote">
+<p>What range of values of <span class="math inline">\(\delta\)</span> are most plausible, given the data we’ve observed?</p>
+</blockquote>
+<p>If that sounds fun—and if you’d rather say things like “there’s an X% probability that <span class="math inline">\(\delta\)</span> is positive” or “<span class="math inline">\(\delta\)</span> is most likely between X and Y” instead of the convoluted “there’s an X% probability of seeing a <span class="math inline">\(\delta\)</span> at least this extreme in a null world”—check out <a href="https://www.bayesrulesbook.com/"><em>Bayes Rules!</em></a> for the best introduction I’ve found to Bayesian modeling.</p>
 <div style="font-size: 80%; text-align: right;">
 <p>Photo by <a href="https://unsplash.com/@boliviainteligente">BoliviaInteligente</a> on <a href="https://unsplash.com/photos/a-black-hole-in-the-center-of-a-black-hole-MO6wb4hdhZo">Unsplash</a></p>
 </div>
@@ -657,10 +684,8 @@ window.Quarto = {
 <div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
 
 <ol>
-<li id="fn1" data-marker="†"><div><p>At least for null hypothesis significance testing (NHST).</p>
-<p>Bayesian tests are different because there’s no such thing as
-statistical significance there and you’re asking different inferential
-questions entirely. <a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></div></li>
+<li id="fn1" data-marker="†"><div><p>At least for null hypothesis significance testing (NHST). Bayesian
+inference is different (see more about that below!). <a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></div></li>
 </ol>
 </section></div></div> <!-- /content -->
 <footer class="footer">
