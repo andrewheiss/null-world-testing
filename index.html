@@ -42,11 +42,14 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-a67ac2868200dddf7a4f0e3ae403775c.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-7f03a1db999e677ada05a9dc26d2d85e.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-f7aba13b49c7fc0a559eacefd1d94c1f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-7f03a1db999e677ada05a9dc26d2d85e.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-0f56b4be3ca589603b7829df44446ed8.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-de30fa1b9f39b12717e5258e78d953c3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-0f56b4be3ca589603b7829df44446ed8.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <link href="site_libs/quarto-contrib/fontawesome6-6.7.2/all.min.css" rel="stylesheet">
 <link href="site_libs/quarto-contrib/fontawesome6-6.7.2/latex-fontsize.css" rel="stylesheet">
+<script src="site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -183,25 +186,27 @@ window.Quarto = {
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-layout-custom page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
+    
 <!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
 
 
 
 
-<div class="hero-image">
+<div class="column-screen hero-image">
 <p><img src="img/black-hole-cropped.jpg" class="img-fluid"></p>
 </div>
-<section id="statistical-testing-in-null-worlds" class="level1 hero-banner">
+<section id="statistical-testing-in-null-worlds" class="level1 column-screen hero-banner">
 <h1>Statistical testing in null worlds</h1>
 <p>◎◉○</p>
 <p>Learn the intuition behind p-values through simulation</p>
 </section>
-<div class="content-section home">
-<section id="there-is-only-one-test" class="level2">
-<h2 data-anchor-id="there-is-only-one-test">There is only one test</h2>
+<div class="home page-columns page-full">
+<section id="there-is-only-one-test" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="there-is-only-one-test">There is only one test</h2>
 <p>At their core, all statistical tests<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>†</sup></a> can be conducted by following a universal pattern:</p>
 <ul>
 <li><strong>Step 1: Calculate a sample statistic, or <span class="math inline">\(\delta\)</span> (“delta”).</strong> This is the main measure you care about: the difference in means, the average, the median, the proportion, the difference in proportions, the chi-squared value, the slope in a regression model, etc.</li>
@@ -224,9 +229,12 @@ window.Quarto = {
 <p>Calculate a number, simulate a null world, calculate the probability of seeing your number in that null world, and decide if that number is significantly different from what is typically seen in the null world.</p>
 </div>
 </div>
+<div class="column-page-inset">
+<p><a href="img/only-one-test.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="img/only-one-test.png" class="img-fluid"></a></p>
+</div>
 </section>
 <section id="example-simulations" class="level2">
-<h2 data-anchor-id="example-simulations">Example simulations</h2>
+<h2 class="anchored" data-anchor-id="example-simulations">Example simulations</h2>
 <p>This site contains a few different illustrations of common statistical tests:</p>
 <ul>
 <li><a href="./diff-in-means.html">Difference in means</a></li>
@@ -236,7 +244,7 @@ window.Quarto = {
 </ul>
 </section>
 <section id="do-i-have-to-simulate-everything" class="level2">
-<h2 data-anchor-id="do-i-have-to-simulate-everything">Do I have to simulate everything?</h2>
+<h2 class="anchored" data-anchor-id="do-i-have-to-simulate-everything">Do I have to simulate everything?</h2>
 <p>No!</p>
 <p>You <em>can</em> use <a href="https://infer.netlify.app/">the {infer} package</a> in R to conduct simulation-based hypothesis tests yourself with your own data.</p>
 <p>But—most likely—you’ll never actually do your own simulation-based testing (which is fine!). Thinking about null worlds is still <em>extremely valuable</em> for understanding the intuition behind hypothesis testing and p-values. This page shows the same tests using regular statistical functions, but interprets the p-values using the same null world logic:</p>
@@ -245,7 +253,7 @@ window.Quarto = {
 </ul>
 </section>
 <section id="why-does-this-work" class="level2">
-<h2 data-anchor-id="why-does-this-work">Why does this work?</h2>
+<h2 class="anchored" data-anchor-id="why-does-this-work">Why does this work?</h2>
 <p>TODO</p>
 <p>Allen Downey</p>
 <p>Richard McElreath</p>
@@ -253,7 +261,7 @@ window.Quarto = {
 <p>ModernDive - https://moderndive.com/v2/hypothesis-testing.html#ht-case-study</p>
 </section>
 <section id="this-all-feels-vaguely-bayesian" class="level2">
-<h2 data-anchor-id="this-all-feels-vaguely-bayesian">This all feels vaguely Bayesian?</h2>
+<h2 class="anchored" data-anchor-id="this-all-feels-vaguely-bayesian">This all feels vaguely Bayesian?</h2>
 <p>Yep. All this simulation thinking is actually part of my clandestine plot to get more people curious about Bayesian statistics. This way of thinking prepares you for Bayesian inference, without actually being Bayesian.</p>
 <p>This simulation-based approach mirrors a lot of the computational thinking behind Bayesian statistics. In both approaches, we (1) start with an explicit data-generating process and (2) think about uncertainty with simulation instead of formulas.</p>
 <p>But there’s an important difference in what we’re simulating!</p>
@@ -266,16 +274,22 @@ window.Quarto = {
 <p>What range of values of <span class="math inline">\(\delta\)</span> are most plausible, given the data we’ve observed?</p>
 </blockquote>
 <p>If that sounds fun—and if you’d rather say things like “there’s an X% probability that <span class="math inline">\(\delta\)</span> is positive” or “<span class="math inline">\(\delta\)</span> is most likely between X and Y” instead of the convoluted “in a world where <span class="math inline">\(\delta\)</span> is 0ish, there’s an X% probability of seeing a <span class="math inline">\(\delta\)</span> at least as extreme as what we observed”—check out <a href="https://www.bayesrulesbook.com/"><em>Bayes Rules!</em></a> for the best introduction I’ve found to Bayesian modeling.</p>
+</section>
+</div>
 <div style="font-size: 80%; text-align: right;">
 <p>Photo by <a href="https://unsplash.com/@boliviainteligente">BoliviaInteligente</a> on <a href="https://unsplash.com/photos/a-black-hole-in-the-center-of-a-black-hole-MO6wb4hdhZo">Unsplash</a></p>
 </div>
-</section>
-</div>
 
 
 
 
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
 
+<ol>
+<li id="fn1" data-marker="†"><div><p>At least for null hypothesis significance testing (NHST). Bayesian
+inference is different (see more about that below!). <a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></div></li>
+</ol>
+</section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
@@ -676,13 +690,7 @@ window.Quarto = {
     }
   });
   </script>
-<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
-
-<ol>
-<li id="fn1" data-marker="†"><div><p>At least for null hypothesis significance testing (NHST). Bayesian
-inference is different (see more about that below!). <a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></div></li>
-</ol>
-</section></div></div> <!-- /content -->
+</div> <!-- /content -->
 <footer class="footer">
   <div class="nav-footer">
     <div class="nav-footer-left">
@@ -696,6 +704,38 @@ inference is different (see more about that below!). <a href="#fnref1" class="fo
 </div>
   </div>
 </footer>
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
 
 
 
