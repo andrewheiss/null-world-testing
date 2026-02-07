@@ -1,6 +1,6 @@
 ---
 page-title: "Statistical testing in null worlds"
-page-layout: custom
+page-layout: article
 sidebar: false
 toc: false
 filters:
@@ -11,11 +11,11 @@ extensions:
     custom: ["†", "‡", "§", "‖"]
 ---
 
-::: {.hero-image}
+::: {.column-screen .hero-image}
 ![](img/black-hole-cropped.jpg)
 :::
 
-::: {.hero-banner}
+::: {.column-screen .hero-banner}
 
 # Statistical testing in null worlds
 
@@ -25,7 +25,7 @@ Learn the intuition behind p-values through simulation
 
 :::
 
-::: {.content-section .home}
+::: {.home}
 
 ## There is only one test
 
@@ -74,6 +74,7 @@ But—most likely—you'll never actually do your own simulation-based testing (
 
 ## Why does this work?
 
+
 TODO
 
 Allen Downey
@@ -103,9 +104,8 @@ Bayesian statistics flips this. Instead of asking how extreme our data (or $\del
 
 If that sounds fun—and if you'd rather say things like "there's an X% probability that $\delta$ is positive" or "$\delta$ is most likely between X and Y" instead of the convoluted "in a world where $\delta$ is 0ish, there's an X% probability of seeing a $\delta$ at least as extreme as what we observed"—check out [*Bayes Rules!*](https://www.bayesrulesbook.com/) for the best introduction I've found to Bayesian modeling.
 
+:::
 
 ::: {style="font-size: 80%; text-align: right;"}
 Photo by [BoliviaInteligente](https://unsplash.com/@boliviainteligente) on [Unsplash](https://unsplash.com/photos/a-black-hole-in-the-center-of-a-black-hole-MO6wb4hdhZo)
-:::
-
 :::

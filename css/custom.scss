@@ -9,8 +9,20 @@ $code-font-size: 0.75em;
   font-size: 1.25cap;
 }
 
+// Remove top spacing so hero sits flush against navbar
+#quarto-content main.content {
+  padding-top: 0;
+  margin-top: 0;
+
+  #title-block-header {
+    margin: 0;
+    padding: 0;
+    display: none;
+  }
+}
+
 // Hero image section
-#quarto-content > .hero-image {
+.hero-image {
   margin: 0;
   padding: 0;
   line-height: 0;
@@ -30,7 +42,7 @@ $code-font-size: 0.75em;
 }
 
 // Dark hero banner with page title
-#quarto-content .hero-banner {
+.hero-banner {
   background-color: #000000;
   color: #ffffff;
   text-align: center;
@@ -106,18 +118,6 @@ thead th {
   max-width: 800px;
   margin: 0 auto;
   padding: 3rem 1.5rem;
-}
-
-// Constrain footnotes to match content width on custom layout pages
-#quarto-appendix.default {
-  border-top: none;
-}
-
-#quarto-content section#footnotes {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 1.5rem 1.5rem 2rem;
-  border-top: 1px solid #dee2e6;
 }
 
 .home {
