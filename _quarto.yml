@@ -18,10 +18,10 @@ website:
         text: Difference in means
       - href: diff-in-props.qmd
         text: Difference in proportions
-      - href: regression.qmd
-        text: Regression
       - href: one-sample-mean.qmd
         text: One-sample mean
+      - href: regression.qmd
+        text: Regression
       - href: regular-p-values.qmd
         text: Regular p-values
     right:

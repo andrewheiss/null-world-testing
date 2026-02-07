@@ -51,8 +51,8 @@ This site contains a few different illustrations of common statistical tests:
 
 - [Difference in means](diff-in-means.qmd)
 - [Difference in proportions](diff-in-props.qmd)
-- [Regression slope](regression.qmd)
 - [One-sample mean](one-sample-mean.qmd)
+- [Regression slope](regression.qmd)
 
 
 ## Do I have to simulate everything?
