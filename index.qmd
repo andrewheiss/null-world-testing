@@ -83,11 +83,7 @@ ModernDive - https://moderndive.com/v2/hypothesis-testing.html#ht-case-study
 
 Yep. All this simulation thinking is actually part of my clandestine plot to get more people curious about Bayesian statistics. This way of thinking prepares you for Bayesian inference, without actually being Bayesian.
 
-This simulation-based approach mirrors a lot of the computational thinking behind Bayesian statistics. In both approaches, we:
-
-- Start with an explicit data-generating process
-- Think about uncertainty with simulation instead of formulas
-- Compare observed data to a distribution
+This simulation-based approach mirrors a lot of the computational thinking behind Bayesian statistics. In both approaches, we (1) start with an explicit data-generating process and (2) think about uncertainty with simulation instead of formulas.
 
 But there's an important difference in what we're simulating!
 
