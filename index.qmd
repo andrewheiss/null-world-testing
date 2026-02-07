@@ -29,11 +29,7 @@ Learn the intuition behind p-values through simulation
 
 ## There is only one test
 
-All hypothesis tests follow the same workflow:
-
-https://moderndive.com/v2/hypothesis-testing.html#ht-case-study - This workflow allows you to test any statistical hypothesis through simulation by following this process for the idea that there is only one statistical test:
-
-At their core, all statistical tests^[In null hypothesis significance testing (NHST); Bayesian tests are different because there's no such thing as statistical significance there and you're asking different inferential questions entirely.] can be done by following a universal pattern:
+At their core, all statistical tests^[In null hypothesis significance testing (NHST); Bayesian tests are different because there's no such thing as statistical significance there and you're asking different inferential questions entirely.] can be conducted by following a universal pattern:
 
 - **Step 1: Calculate a sample statistic, or $\delta$ ("delta").** This is the main measure you care about: the difference in means, the average, the median, the proportion, the difference in proportions, the chi-squared value, the slope in a regression model, etc.
 - **Step 2: Use simulation to invent a world where $\delta$ is null.** Simulate what the world would look like if there was no difference or relationship between two groups, or if there was no difference in proportions, or where the average value is a specific number.
@@ -53,7 +49,7 @@ Richard McElreath
 
 {infer}
 
-ModernDive
+ModernDive - https://moderndive.com/v2/hypothesis-testing.html#ht-case-study
 
 
 ## Example simulations
