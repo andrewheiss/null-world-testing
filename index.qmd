@@ -34,20 +34,41 @@ At their core, all statistical tests[^nhst-caveat] can be conducted by following
 - **Step 1: Calculate a sample statistic, or $\delta$ ("delta").** This is the main measure you care about: the difference in means, the average, the median, the proportion, the difference in proportions, the chi-squared value, the slope in a regression model, etc.
 - **Step 2: Use simulation to invent a world where $\delta$ is null.** Simulate what the world would look like if there was no difference or relationship between two groups, or if there was no difference in proportions, or where the average value is a specific number.
 - **Step 3: Look at $\delta$ in the null world.** Put the sample statistic in the null world and see if it fits well.
-- **Step 4: Calculate the probability that $\delta$ could exist in null world.** This is the p-value, or the probability that you'd see a $\delta$ at least that high in a world where there's no difference.
+- **Step 4: Calculate the probability that $\delta$ could exist in null world.** This is the p-value, or the probability that you'd see a $\delta$ at least as extreme in a world where there's no difference.
 - **Step 5: Decide if $\delta$ is statistically significant.** Choose some evidentiary standard or threshold for deciding if there's sufficient proof for rejecting the null world. Standard thresholds (from least to most rigorous) are 0.1, 0.05, and 0.01.
 
-That's all. Five steps. No need to follow [complicated flowcharts to select the best and most appropriate statistical test](https://www.google.com/search?q=statistical+test+flow+chart). No need to decide which pretests you need to run to choose the right flavor of *t*-test.
+That's all. Five steps. No need to follow [complicated flowcharts to select the best and most appropriate statistical test](https://www.google.com/search?q=statistical+test+flow+chart). No need to decide which pretests you need to run to choose the right flavor of *t*-test. No need to think about whether you should use a *t*- or a *z*- distribution for your test statistic. Simulate instead.
 
 ::: {.callout-tip title="tl;dr"}
 Calculate a number, simulate a null world, calculate the probability of seeing your number in that null world, and decide if that number is significantly different from what is typically seen in the null world.
 :::
 
-[^nhst-caveat]: At least for null hypothesis significance testing (NHST). 
+[^nhst-caveat]: At least for null hypothesis significance testing (NHST). Bayesian inference is different (see more about that below!).
 
-    Bayesian tests are different because there's no such thing as statistical significance there and you're asking different inferential questions entirely.
+## Example simulations
+
+This site contains a few different illustrations of common statistical tests:
+
+- [Difference in means](diff-in-means.qmd)
+- [Difference in proportions](diff-in-props.qmd)
+- [Regression slope](regression.qmd)
+- [One-sample mean](one-sample-mean.qmd)
+
+
+## Do I have to simulate everything?
+
+No!
+
+You *can* use [the {infer} package](https://infer.netlify.app/) in R to conduct simulation-based hypothesis tests yourself with your own data.
+
+But—most likely—you'll never actually do your own simulation-based testing (which is fine!). Thinking about null worlds is still *extremely valuable* for understanding the intuition behind hypothesis testing and p-values. This page shows the same tests using regular statistical functions, but interprets the p-values using the same null world logic:
+
+- [Regular P-values](regular-p-values.qmd)
+
 
 ## Why does this work?
+
+TODO
 
 Allen Downey
 
@@ -58,16 +79,27 @@ Richard McElreath
 ModernDive - https://moderndive.com/v2/hypothesis-testing.html#ht-case-study
 
 
-## Example simulations
+## This all feels vaguely Bayesian?
 
-- [Difference in means](diff-in-means.qmd)
-- [Difference in proportions](diff-in-props.qmd)
-- [Regression slope](regression.qmd)
-- [One-sample mean](one-sample-mean.qmd)
+Yep. All this simulation thinking is actually part of my clandestine plot to get more people curious about Bayesian statistics. This way of thinking prepares you for Bayesian inference, without actually being Bayesian.
 
-IRL thing
+This simulation-based approach mirrors a lot of the computational thinking behind Bayesian statistics. In both approaches, we:
 
-- [Regular P-values](regular-p-values.qmd)
+- Start with an explicit data-generating process
+- Think about uncertainty with simulation instead of formulas
+- Compare observed data to a distribution
+
+But there's an important difference in what we're simulating!
+
+With traditional null hypothesis testing, we simulate a null world and ask:
+
+> If this were the world we lived in, how surprising would our observed $\delta$ be?
+
+Bayesian statistics flips this. Instead of asking how extreme our data (or $\delta$) is in a single null world, we model uncertainty about the parameter $\delta$ itself. After combining prior beliefs with observed data, we get a posterior distribution that we can simulate from to ask:
+
+> What range of values of $\delta$ are most plausible, given the data we've observed?
+
+If that sounds fun—and if you'd rather say things like "there's an X% probability that $\delta$ is positive" or "$\delta$ is most likely between X and Y" instead of the convoluted "there's an X% probability of seeing a $\delta$ at least this extreme in a null world"—check out [*Bayes Rules!*](https://www.bayesrulesbook.com/) for the best introduction I've found to Bayesian modeling.
 
 
 ::: {style="font-size: 80%; text-align: right;"}
