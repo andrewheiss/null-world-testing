@@ -45,6 +45,12 @@ Calculate a number, simulate a null world, calculate the probability of seeing y
 
 [^nhst-caveat]: At least for null hypothesis significance testing (NHST). Bayesian inference is different (see more about that below!).
 
+::: {.column-page-inset}
+
+![](img/only-one-test.png){.lightbox}
+
+:::
+
 ## Example simulations
 
 This site contains a few different illustrations of common statistical tests:
