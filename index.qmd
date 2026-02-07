@@ -99,7 +99,7 @@ Bayesian statistics flips this. Instead of asking how extreme our data (or $\del
 
 > What range of values of $\delta$ are most plausible, given the data we've observed?
 
-If that sounds fun—and if you'd rather say things like "there's an X% probability that $\delta$ is positive" or "$\delta$ is most likely between X and Y" instead of the convoluted "there's an X% probability of seeing a $\delta$ at least this extreme in a null world"—check out [*Bayes Rules!*](https://www.bayesrulesbook.com/) for the best introduction I've found to Bayesian modeling.
+If that sounds fun—and if you'd rather say things like "there's an X% probability that $\delta$ is positive" or "$\delta$ is most likely between X and Y" instead of the convoluted "in a world where $\delta$ is 0ish, there's an X% probability of seeing a $\delta$ at least as extreme as what we observed"—check out [*Bayes Rules!*](https://www.bayesrulesbook.com/) for the best introduction I've found to Bayesian modeling.
 
 
 ::: {style="font-size: 80%; text-align: right;"}
