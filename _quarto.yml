@@ -7,6 +7,19 @@ project:
 
 website:
   title: "Null worlds"
+  description: "Learn the intuition behind p-values—and conduct any statistical test—through simulation"
+
+  site-url: "https://nullworlds.andrewheiss.com"
+  favicon: "/img/favicon.png"
+  image: "/img/preview.png"
+
+  open-graph:
+    image: "/img/preview.png"
+    locale: en_US
+
+  twitter-card:
+    image: "/img/preview.png"
+    card-style: summary_large_image
 
   repo-url: "https://github.com/andrewheiss/null-world-testing"
   repo-actions: [source, issue]

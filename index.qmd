@@ -30,7 +30,7 @@ Learn the intuition behind p-values through simulation
 
 At their core, all statistical tests[^nhst-caveat] can be conducted by following a universal pattern:
 
-- **Step 1: Calculate a sample statistic, or $\delta$ ("delta").** This is the main measure you care about: the difference in means, the average, the median, the proportion, the difference in proportions, the chi-squared value, the slope in a regression model, etc.
+- **Step 1: Calculate a sample statistic, or $\delta$ ("delta").** This is the main measure you care about: the difference in means, the average, the median, the proportion, the difference in proportions, the slope in a regression model, an odds ratio, etc.
 - **Step 2: Use simulation to invent a world where $\delta$ is null.** Simulate what the world would look like if there was no difference or relationship between two groups, or if there was no difference in proportions, or where the average value is a specific number.
 - **Step 3: Look at $\delta$ in the null world.** Put the sample statistic in the null world and see if it fits well.
 - **Step 4: Calculate the probability that $\delta$ could exist in null world.** This is the p-value, or the probability that you'd see a $\delta$ at least as extreme in a world where there's no difference.
