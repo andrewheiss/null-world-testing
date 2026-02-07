@@ -3,6 +3,12 @@ page-title: "Statistical testing in null worlds"
 page-layout: custom
 sidebar: false
 toc: false
+filters:
+  - footnote-styles
+extensions:
+  footnote-styles:
+    # style: "symbols"
+    custom: ["†", "‡", "§", "‖"]
 ---
 
 ::: {.hero-image}
@@ -19,7 +25,7 @@ Learn the intuition behind p-values through simulation
 
 :::
 
-::: {.content-section}
+::: {.content-section .home}
 
 ## There is only one test
 
@@ -27,18 +33,38 @@ All hypothesis tests follow the same workflow:
 
 https://moderndive.com/v2/hypothesis-testing.html#ht-case-study - This workflow allows you to test any statistical hypothesis through simulation by following this process for the idea that there is only one statistical test:
 
-- **Step 1: Calculate a sample statistic, or $\delta$.** This is the main measure you care about: the difference in means, the average, the median, the proportion, the difference in proportions, the chi-squared value, etc.
-- **Step 2: Use simulation to invent a world where $\delta$ is null.** Simulate what the world would look like if there was no difference between two groups, or if there was no difference in proportions, or where the average value is a specific number.
+At their core, all statistical tests^[In null hypothesis significance testing (NHST); Bayesian tests are different because there's no such thing as statistical significance there and you're asking different inferential questions entirely.] can be done by following a universal pattern:
+
+- **Step 1: Calculate a sample statistic, or $\delta$ ("delta").** This is the main measure you care about: the difference in means, the average, the median, the proportion, the difference in proportions, the chi-squared value, the slope in a regression model, etc.
+- **Step 2: Use simulation to invent a world where $\delta$ is null.** Simulate what the world would look like if there was no difference or relationship between two groups, or if there was no difference in proportions, or where the average value is a specific number.
 - **Step 3: Look at $\delta$ in the null world.** Put the sample statistic in the null world and see if it fits well.
 - **Step 4: Calculate the probability that $\delta$ could exist in null world.** This is the p-value, or the probability that you'd see a $\delta$ at least that high in a world where there's no difference.
 - **Step 5: Decide if $\delta$ is statistically significant.** Choose some evidentiary standard or threshold for deciding if there's sufficient proof for rejecting the null world. Standard thresholds (from least to most rigorous) are 0.1, 0.05, and 0.01.
 
-## Examples
+That's all. Five steps. No need to follow [complicated flowcharts to select the best and most appropriate statistical test](https://www.google.com/search?q=statistical+test+flow+chart). No need to decide which pretests you need to run to choose the right flavor of *t*-test.
 
-- [Difference in Means](diff-in-means.qmd)
-- [Difference in Proportions](diff-in-props.qmd)
-- [Regression Slope](regression.qmd)
-- [One-Sample Mean](one-sample-mean.qmd)
+**Calculate a number, simulate a null world, and decide if the number you've calculated is significantly different from what is typically seen in the null world.**
+
+## Why does this work?
+
+Allen Downey
+
+Richard McElreath
+
+{infer}
+
+ModernDive
+
+
+## Example simulations
+
+- [Difference in means](diff-in-means.qmd)
+- [Difference in proportions](diff-in-props.qmd)
+- [Regression slope](regression.qmd)
+- [One-sample mean](one-sample-mean.qmd)
+
+IRL thing
+
 - [Regular P-values](regular-p-values.qmd)
 
 
