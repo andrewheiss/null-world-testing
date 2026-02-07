@@ -39,13 +39,27 @@
     "href": "index.html#there-is-only-one-test",
     "title": "Null worlds",
     "section": "There is only one test",
-    "text": "There is only one test\nAll hypothesis tests follow the same workflow:\nhttps://moderndive.com/v2/hypothesis-testing.html#ht-case-study - This workflow allows you to test any statistical hypothesis through simulation by following this process for the idea that there is only one statistical test:\n\nStep 1: Calculate a sample statistic, or \\(\\delta\\). This is the main measure you care about: the difference in means, the average, the median, the proportion, the difference in proportions, the chi-squared value, etc.\nStep 2: Use simulation to invent a world where \\(\\delta\\) is null. Simulate what the world would look like if there was no difference between two groups, or if there was no difference in proportions, or where the average value is a specific number.\nStep 3: Look at \\(\\delta\\) in the null world. Put the sample statistic in the null world and see if it fits well.\nStep 4: Calculate the probability that \\(\\delta\\) could exist in null world. This is the p-value, or the probability that you’d see a \\(\\delta\\) at least that high in a world where there’s no difference.\nStep 5: Decide if \\(\\delta\\) is statistically significant. Choose some evidentiary standard or threshold for deciding if there’s sufficient proof for rejecting the null world. Standard thresholds (from least to most rigorous) are 0.1, 0.05, and 0.01."
+    "text": "There is only one test\nAt their core, all statistical tests† can be conducted by following a universal pattern:\n\nStep 1: Calculate a sample statistic, or \\(\\delta\\) (“delta”). This is the main measure you care about: the difference in means, the average, the median, the proportion, the difference in proportions, the chi-squared value, the slope in a regression model, etc.\nStep 2: Use simulation to invent a world where \\(\\delta\\) is null. Simulate what the world would look like if there was no difference or relationship between two groups, or if there was no difference in proportions, or where the average value is a specific number.\nStep 3: Look at \\(\\delta\\) in the null world. Put the sample statistic in the null world and see if it fits well.\nStep 4: Calculate the probability that \\(\\delta\\) could exist in null world. This is the p-value, or the probability that you’d see a \\(\\delta\\) at least that high in a world where there’s no difference.\nStep 5: Decide if \\(\\delta\\) is statistically significant. Choose some evidentiary standard or threshold for deciding if there’s sufficient proof for rejecting the null world. Standard thresholds (from least to most rigorous) are 0.1, 0.05, and 0.01.\n\nThat’s all. Five steps. No need to follow complicated flowcharts to select the best and most appropriate statistical test. No need to decide which pretests you need to run to choose the right flavor of t-test.\nCalculate a number, simulate a null world, and decide if the number you’ve calculated is significantly different from what is typically seen in the null world."
   },
   {
-    "objectID": "index.html#examples",
-    "href": "index.html#examples",
+    "objectID": "index.html#why-does-this-work",
+    "href": "index.html#why-does-this-work",
     "title": "Null worlds",
-    "section": "Examples",
-    "text": "Examples\n\nDifference in Means\nDifference in Proportions\nRegression Slope\nOne-Sample Mean\nRegular P-values\n\n\nPhoto by BoliviaInteligente on Unsplash"
+    "section": "Why does this work?",
+    "text": "Why does this work?\nAllen Downey\nRichard McElreath\n{infer}\nModernDive - https://moderndive.com/v2/hypothesis-testing.html#ht-case-study"
+  },
+  {
+    "objectID": "index.html#example-simulations",
+    "href": "index.html#example-simulations",
+    "title": "Null worlds",
+    "section": "Example simulations",
+    "text": "Example simulations\n\nDifference in means\nDifference in proportions\nRegression slope\nOne-sample mean\n\nIRL thing\n\nRegular P-values\n\n\nPhoto by BoliviaInteligente on Unsplash"
+  },
+  {
+    "objectID": "index.html#footnotes",
+    "href": "index.html#footnotes",
+    "title": "Null worlds",
+    "section": "Footnotes",
+    "text": "Footnotes\n\n\nIn null hypothesis significance testing (NHST); Bayesian tests are\ndifferent because there’s no such thing as statistical significance\nthere and you’re asking different inferential questions entirely. ↩︎"
   }
 ]
