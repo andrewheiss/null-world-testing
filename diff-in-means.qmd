@@ -1,8 +1,5 @@
 ---
 title: "Difference in means"
-# toc: true
-# filters:
-#   - output-styling
 ---
 
 ::: {.column-screen .hero-banner-mini}
