@@ -1,16 +1,21 @@
 ---
 title: "Difference in means"
-page-layout: custom
-format:
-  html:
-    include-in-header:
-      - text: |
-          <style>
-          #quarto-content {
-            padding: 1em 1.5em;
-          }
-          </style>
+# toc: true
+# filters:
+#   - output-styling
 ---
+
+::: {.column-screen .hero-banner-mini}
+
+# Difference in means
+
+◎◉○
+
+:::
+
+## Live simulation
+
+::::::::: {.column-screen-inset}
 
 ```{ojs}
 //| echo: false
@@ -52,9 +57,9 @@ function statLabel(value, textFn, dy, nullValues) {
 }
 ```
 
-::::::: {.grid}
+:::::::: {.grid}
 
-::::: {.g-col-12 .g-col-md-4 .sticky}
+::::::: {.g-col-12 .g-col-md-4 .sticky}
 
 ```{ojs}
 //| echo: false
@@ -157,11 +162,11 @@ Plot.plot({
 })
 ```
 
-:::::
+:::::::
 
-::::: {.g-col-12 .g-col-md-8}
+::::::: {.g-col-12 .g-col-md-8}
 
-:::: {.panel-tabset}
+:::::: {.panel-tabset .nav-pills}
 
 ## Step 1: Calculate δ
 
@@ -432,7 +437,7 @@ Plot.plot({
 
 ## Step 4: p-value
 
-We can actually quantify the probability of seeing that red line in a null world. This is a **p-value**—the probability of seeing a δ at least that big in a world where there's no difference between the group averages.
+We can actually quantify the probability of seeing that red line in a null world. This is a **p-value**—the probability of seeing a δ at least that extreme in a world where there's no difference between the group averages.
 
 ::: {style="width: 75%;"}
 
@@ -508,7 +513,7 @@ html`<p>This means that in a world where there is no difference between the grou
 
 Finally, we have to decide if the p-value meets an evidentiary standard or threshold that would provide us with enough evidence that we *aren't* in the null world (or, in more statsy terms, enough evidence to reject the null hypothesis).
 
-There are lots of possible thresholds. By convention, most people use a threshold (often shortened to α) of 0.05, or 5%. But that's not required! You could have a lower standard with an α of 0.1 (10%), or a higher standard with an α of 0.01 (1%).
+There are lots of possible thresholds. By convention, most people use a threshold (often shortened to $\alpha$) of 0.05, or 5%. But that's not required! You could have a lower standard with an $\alpha$ of 0.1 (10%), or a higher standard with an $\alpha$ of 0.01 (1%).
 
 ```{ojs}
 //| echo: false
@@ -519,9 +524,9 @@ viewof alpha = Inputs.select([0.10, 0.05, 0.01], {
 })
 ```
 
-:::: {.grid}
+::::: {.grid}
 
-::: {.g-col-12 .g-col-md-6}
+:::: {.g-col-12 .g-col-md-6}
 
 ```{ojs}
 //| echo: false
@@ -547,9 +552,9 @@ viewof alpha = Inputs.select([0.10, 0.05, 0.01], {
 }
 ```
 
-:::
+::::
 
-::: {.g-col-12 .g-col-md-6}
+:::: {.g-col-12 .g-col-md-6}
 
 ```{ojs}
 //| echo: false
@@ -577,14 +582,324 @@ Plot.plot({
 })
 ```
 
-:::
-
-::::
-
-{{< include _evidentiary-standards.qmd >}}
-
 ::::
 
 :::::
 
+{{< include _evidentiary-standards.qmd >}}
+
+::::::
+
 :::::::
+
+::::::::
+
+:::::::::
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  fig.width = 6, 
+  fig.height = 6 * 0.618, 
+  fig.align = "center", 
+  out.width = "80%"
+)
+
+# Make the display() function create {tinytable} tables
+options(easystats_display_format = "tt", width = 300)
+```
+
+## Differences in penguin weights
+
+For this example, we'll look at the body mass of penguins near Palmer Station, Antarctica. At first glance, it looks like there are some definite species-based differences in average penguin weight:
+
+```{r}
+#| echo: false 
+#| warning: false
+#| message: false
+
+library(tidyverse)
+library(infer)
+library(scales)
+library(ggdist)
+library(ggbeeswarm)
+library(parameters)
+library(tinytable)
+
+penguins <- penguins |> drop_na(sex)
+
+theme_set(theme_minimal(base_size = 14))
+
+# From MoMAColors::moma.colors("OKeeffe")
+clrs <- c(
+  "#f3d567",
+  "#ee9b43",
+  "#e74b47",
+  "#b80422",
+  "#172767",
+  "#19798b"
+)
+
+set.seed(564058)  # Seed from Random.org
+
+lbl_comma <- label_comma(style_negative = "minus")
+lbl_p <- label_pvalue(prefix = c("< ", "", "> "))
+lbl_p_pct <- \(x) ifelse(x < 0.001, "< 0.1%", label_percent(accuracy = 0.01)(x))
+
+penguins_chin_gen <- penguins |>
+  filter(species %in% c("Chinstrap", "Gentoo"))
+```
+
+```{r}
+#| echo: false
+
+avg_weight <- penguins |>
+  group_by(species) |>
+  summarize(avg_weight = mean(body_mass))
+
+avg_weight |>
+  setNames(c("Species", "Average weight (g)")) |>
+  tt() |> 
+  format_tt(digits = 2) |> 
+  style_tt(align = "lc")
+```
+
+```{r}
+#| echo: false
+
+ggplot(penguins, aes(x = species, y = body_mass, color = species)) +
+  geom_beeswarm(side = -1, size = 1, cex = 1.5) +
+  stat_pointinterval(.width = 0.95, position = position_nudge(x = 0.2)) +
+  scale_y_continuous(labels = label_number(scale_cut = cut_si("g"))) +
+  scale_color_manual(values = c(clrs[2], clrs[4], clrs[5]), guide = "none") +
+  labs(x = "Species", y = "Body mass")
+```
+
+Let's look specifically at the difference in the average body mass for just Chinstrap and Gentoo penguins. First, we'll load some packages:
+
+```{.r}
+library(tidyverse)
+library(infer)
+library(parameters)
+
+penguins <- penguins |> drop_na(sex)
+```
+
+With some filtering, grouping, and summarizing, we can find the difference in means and see that Chinstraps seem to be a lot lighter than Gentoos, on average:
+
+```{r}
+penguins |>
+  filter(species %in% c("Chinstrap", "Gentoo")) |>
+  group_by(species) |>
+  summarize(avg_weight = mean(body_mass)) |>
+  mutate(difference = c(NA, avg_weight[1] - avg_weight[2]))
+```
+
+But is that difference real? Could it potentially be zero? We need to do some hypothesis testing.
+
+
+## Null hypothesis inference with {infer}
+
+::::: {.panel-tabset .nav-pills}
+
+### Step 1: Calculate $\delta$
+
+The sample statistic we're interested in is the difference in means between Chinstrap and Gentoo penguins.
+
+To find this, we'll filter the data to only keep those two species, use `specify()` to define the response and explanatory variables we're using, and use `calculate()` to calculate the difference in means:
+
+```{r}
+#| warning: false
+#| message: false
+
+delta <- penguins |>
+  filter(species %in% c("Chinstrap", "Gentoo")) |>
+  specify(body_mass ~ species) |>
+  calculate(stat = "diff in means", order = c("Chinstrap", "Gentoo"))
+delta
+```
+
+The difference in means between Chinstraps and Gentoos is **`{r} lbl_comma(delta$stat)` grams.**
+
+
+### Step 2: Simulate null world
+
+We create a null distribution by shuffling (or "permuting" to use the official stats term) the species label. This simulates a world where all the penguin weights are still the same, but where species assignment doesn't matter. **This eliminates all differences between the species.**
+
+```{r}
+#| warning: false
+#| message: false
+
+shuffled_data <- penguins |>
+  filter(species %in% c("Chinstrap", "Gentoo")) |>
+  specify(body_mass ~ species) |>
+  hypothesize(null = "independence") |>
+  generate(reps = 5000, type = "permute")
+shuffled_data
+```
+
+The resulting data frame has `{r} lbl_comma(nrow(shuffled_data))` rows! That's because we made 5,000 versions of the original data for `{r} lbl_comma(nrow(penguins_chin_gen))` Chinstrap and Gentoo penguins.
+
+Next we need to calculate the $\delta$ in each of these 5,000 worlds:
+
+```{r}
+null_world <- shuffled_data |>
+  calculate(stat = "diff in means", order = c("Chinstrap", "Gentoo"))
+null_world
+```
+
+The distribution of all these differences in means across the different simulated datasets creates a **null world**, or null distribution. Here's what this null world looks like:
+
+```{r}
+null_world |>
+  visualize()
+```
+
+Importantly, notice that the difference between species is not *exactly* 0. There is variation in the actual data, and that variation is reflected in the null world. In a world where there is no difference between the species, the difference is 0 ± some amount. In this case, it's 0 ± ≈250ish grams.
+
+### Step 3: Put $\delta$ in the null world
+
+Next we put $\delta$ inside that null world to see how comfortably it fits there.
+
+```{r}
+null_world |>
+  visualize() +
+  shade_p_value(obs_stat = delta, direction = NULL)
+```
+
+That's *way* far to the right and doesn't look likely *at all*. A difference of `{r} lbl_comma(delta$stat)` g is really unlikely in a world where there's no difference between the species.
+
+### Step 4: p-value
+
+We can actually quantify the probability of seeing that red line in a null world. This is a **p-value**—the probability of seeing a $\delta$ at least that extreme in a world where there's no difference between the species averages.
+
+```{r}
+null_world |>
+  visualize() +
+  shade_p_value(obs_stat = delta, direction = "two-sided")
+```
+
+```{r}
+p_value <- null_world |>
+  get_p_value(obs_stat = delta, direction = "two-sided")
+p_value
+```
+
+The p-value is **`{r} lbl_p(p_value$p_value)`**. (It's so tiny that `get_p_value()` reports it as 0, along with an ominous warning. Technically it's not zero—it's just really really tiny.)
+
+This means that in a world where there is no difference between the groups, there is a **< 0.1%** chance of seeing a difference of at least **`{r} lbl_comma(delta$stat)`**.
+
+### Step 5: Decision
+
+Finally, we have to decide if the p-value meets an evidentiary standard or threshold that would provide us with enough evidence that we *aren't* in the null world (or, in more statsy terms, enough evidence to reject the null hypothesis).
+
+There are lots of possible thresholds. By convention, most people use a threshold (often shortened to $\alpha$) of 0.05, or 5%. But that's not required! You could have a lower standard with an $\alpha$ of 0.1 (10%), or a higher standard with an $\alpha$ of 0.01 (1%). In this case, we'll assume an $\alpha$ of 0.05.
+
+In this case, the p-value is **`{r} lbl_p(p_value$p_value)`** and our threshold for $\alpha$ is **0.05**.
+
+In a world where there is no difference between the two species, the probability of seeing a difference as extreme as **`{r} lbl_comma(delta$stat)`** is **`{r} lbl_p_pct(p_value$p_value)`**.
+
+Since `{r} lbl_p(p_value$p_value)` is less than 0.05, we have enough evidence to say that the difference is **statistically significant.**
+
+```{r}
+null_world |>
+  visualize() +
+  shade_p_value(obs_stat = delta, direction = "two-sided")
+```
+
+:::::
+
+
+## Null hypothesis inference with `t.test()`
+
+In practice, most people do not simulate null worlds. Instead, they'll use a built-in test that uses a known theoretical distribution of what the null world is assumed to look like (like the *t*, *F*, and $\chi^2$ distributions), and calculate a p-value based on that null distribution. This theoretical, mathematical p-value is what you see in regular statistical output.
+
+Even though these values are not based on simulations, **the intuition is the same**: a p-value is still the probability of seeing a $\delta$ at least that extreme in a world where there is no difference.
+
+To find the difference in group means, we can conduct a *t*-test with `t.test()`:
+
+```{r}
+t.test(
+  body_mass ~ species,
+  data = filter(penguins, species %in% c("Chinstrap", "Gentoo"))
+)
+```
+
+Buried in that giant wall of text is the p-value: p < 2.2e-16, or p < 2.2 × 10^−16^. That's really tiny. In a world where Chinstrap and Gentoo penguins had the same average body mass, it would be virtually impossible to see a difference as extreme as `{r} lbl_comma(delta$stat)`. We have enough evidence to declare that difference is statistically significant.
+
+If you don't like all that text output, you can feed the results of `t.test()` to the `model_parameters()` function from [the {parameters} package](https://easystats.github.io/parameters/). This creates a nice little table with the different group means, the difference, the confidence interval, and the p-value. Feed *that* into `display()` and you'll get a nicely rendered table.
+
+```{r}
+t.test(
+  body_mass ~ species,
+  data = filter(penguins, species %in% c("Chinstrap", "Gentoo"))
+) |>
+  model_parameters() |>
+  display(caption = "")
+```
+
+::: {.callout-warning}
+### Side caveat: Different "flavors" of tests
+
+```{r}
+#| include: false
+
+t_result <- t.test(
+  body_mass ~ species,
+  data = filter(penguins, species %in% c("Chinstrap", "Gentoo"))
+)
+
+df_val <- t_result$parameter
+t_stat <- t_result$statistic
+```
+
+Since we're not simulating the null world, we're making strong assumptions about what the null world looks like. In the case of this *t*-test, we're assuming it follows a *t*-distribution with `{r} round(df_val, 1)` degrees of freedom. That looks like this:
+
+```{r}
+#| echo: false
+#| out-width: 60%
+
+ggplot() +
+  stat_function(
+    geom = "area",
+    fun = \(x) dt(x, df = df_val),
+    xlim = c(-5, 5),
+    fill = "grey30"
+  ) +
+  labs(
+    x = "t-statistic",
+    y = "Density",
+    title = str_glue(
+      "Null world based on a t-distribution (df ≈ {round(df_val, 1)})"
+    )
+  )
+```
+
+We can then put a standardized version of our observed $\delta$—the *t* value of `{r} round(t_stat, 1)`—in that mathematical null world and find the exact probability of seeing it there:
+
+```{r}
+#| echo: false
+#| out-width: 60%
+
+ggplot() +
+  stat_function(
+    geom = "area",
+    fun = \(x) dt(x, df = df_val),
+    xlim = c(-5, 5),
+    fill = "grey30"
+  ) +
+  geom_vline(xintercept = t_stat, color = "red", linewidth = 1) +
+  labs(
+    x = "t-statistic",
+    y = "Density",
+    title = str_glue(
+      "Null world based on a t-distribution (df ≈ {round(df_val, 1)})"
+    )
+  )
+```
+
+We can only assume that this precise *t*-distribution represents a null world under certain conditions. This is why there are [so many statistical test flowcharts](https://www.google.com/search?q=statistical+test+flow+chart)—you have to make sure you choose the test that matches the conditions and characteristics of your data.
+
+For example, different versions of the *t*-test make different assumptions about whether the two groups have equal variances. By default, R uses Welch's *t*-test, which is designed for group means with unequal variances, while the Student *t*-test assumes that group means have equal variances. Technically, in order to check which flavor of *t*-test we need to run, we'd need to test for equality of variances, which involves a separate statistical test with its own null hypothesis. If the variances are equal, we'd use `t.test(..., var.equal = TRUE)`; if the variances are unequal, we'd use `t.test(..., var.equal = FALSE)`. The only way to remember all these assumption checks and all the different versions of statistical tests is to consult a flowchart. It can be miserable.
+
+**If you simulate, you can skip all that.** Your null world is based on the qualities of your observed data, not an idealized mathematical distribution.
+:::

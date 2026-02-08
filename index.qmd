@@ -33,10 +33,12 @@ At their core, all statistical tests[^nhst-caveat] can be conducted by following
 - **Step 1: Calculate a sample statistic, or $\delta$ ("delta").** This is the main measure you care about: the difference in means, the average, the median, the proportion, the difference in proportions, the slope in a regression model, an odds ratio, etc.
 - **Step 2: Use simulation to invent a world where $\delta$ is null.** Simulate what the world would look like if there was no difference or relationship between two groups, or if there was no difference in proportions, or where the average value is a specific number.
 - **Step 3: Look at $\delta$ in the null world.** Put the sample statistic in the null world and see if it fits well.
-- **Step 4: Calculate the probability that $\delta$ could exist in null world.** This is the p-value, or the probability that you'd see a $\delta$ at least as extreme in a world where there's no difference.
+- **Step 4: Calculate the probability that $\delta$ could exist in the null world.** This is the p-value, or the probability that you'd see a $\delta$ at least as extreme in a world where there's no difference.
 - **Step 5: Decide if $\delta$ is statistically significant.** Choose some evidentiary standard or threshold for deciding if there's sufficient proof for rejecting the null world. Standard thresholds (from least to most rigorous) are 0.1, 0.05, and 0.01.
 
-That's all. Five steps. No need to follow [complicated flowcharts to select the best and most appropriate statistical test](https://www.google.com/search?q=statistical+test+flow+chart). No need to decide which pretests you need to run to choose the right flavor of *t*-test. No need to think about whether you should use a *t*- or a *z*- distribution for your test statistic. Simulate instead.
+That's all. Five steps. No need to follow [complicated flowcharts to select the best and most appropriate statistical test](https://www.google.com/search?q=statistical+test+flow+chart). No need to decide which pretests you need to run to choose the right flavor of *t*-test. No need to think about whether you should use a *t*- or a *z*- distribution for your test statistic.
+
+Simulate instead. [There is only one test.](https://allendowney.blogspot.com/2016/06/there-is-still-only-one-test.html)
 
 ::: {.callout-tip title="tl;dr"}
 Calculate a number, simulate a null world, calculate the probability of seeing your number in that null world, and decide if that number is significantly different from what is typically seen in the null world.
@@ -50,7 +52,7 @@ Calculate a number, simulate a null world, calculate the probability of seeing y
 
 :::
 
-## Example simulations
+## Examples
 
 This site contains a few different illustrations of common statistical tests:
 
@@ -62,27 +64,15 @@ This site contains a few different illustrations of common statistical tests:
 
 ## Do I have to simulate everything?
 
-No!
+No! In practice, you'll typically run regular regressions, *t*-tests, or $\chi^2$ tests. These use known theoretical distributions to approximate the null world mathematically rather than through simulation, but **the intuition is identical**: a p-value is still the probability of seeing a $\delta$ at least as extreme in a world where there's no difference. 
 
-You *can* use [the {infer} package](https://infer.netlify.app/) in R to conduct simulation-based hypothesis tests yourself with your own data.
+Once you understand this general framework, ["you can understand *any* hypothesis test"](https://moderndive.com/v2/hypothesis-testing.html#only-one-test), even if it's not done through simulation.
 
-But—most likely—you'll never actually do your own simulation-based testing (which is fine!). Thinking about null worlds is still *extremely valuable* for understanding the intuition behind hypothesis testing and p-values. This page shows the same tests using regular statistical functions, but interprets the p-values using the same null world logic:
+But simulation really shines when your $\delta$ is something unusual---something that doesn't have a convenient built-in test or a place in a [statistical test flowchart](https://www.google.com/search?q=statistical+test+flow+chart).[^flowchart] Want to test a difference in group *medians*? Some interesting quantity that no textbook has ever named, like the average number of years a country ranks in the top five for GDP growth? You can test it! Define any $\delta$ you want, simulate a null world for it, and get a valid p-value. No flowchart required. [The {infer} package](https://infer.netlify.app/) in R makes this straightforward.
 
-- [Regular P-values](regular-p-values.qmd)
+For more examples of this process, and a more formal explanation of why it works, see [Allen Downey's "There is still only one test"](https://allendowney.blogspot.com/2016/06/there-is-still-only-one-test.html) and chapters 7–10 of [ModernDive](https://moderndive.com/) ([especially chapter 8](https://moderndive.com/9-hypothesis-testing.html)).
 
-
-## Why does this work?
-
-
-TODO
-
-Allen Downey
-
-Richard McElreath
-
-{infer}
-
-ModernDive - https://moderndive.com/v2/hypothesis-testing.html#ht-case-study
+[^flowchart]: See chapter 1 of Richard McElreath's *Statistical Rethinking* for more about issues with statistical test flowcharts. He has a [free lecture video](https://www.youtube.com/watch?v=cclUd_HoRlo) and [slides](https://speakerdeck.com/rmcelreath/statistical-rethinking-2022-lecture-01) and [other resources here](https://github.com/rmcelreath/stat_rethinking_2022).
 
 
 ## This all feels vaguely Bayesian?

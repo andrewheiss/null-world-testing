@@ -1,16 +1,18 @@
 ---
 title: "One-sample mean"
-page-layout: custom
-format:
-  html:
-    include-in-header:
-      - text: |
-          <style>
-          #quarto-content {
-            padding: 1em 1.5em;
-          }
-          </style>
 ---
+
+::: {.column-screen .hero-banner-mini}
+
+# One-sample mean
+
+◎◉○
+
+:::
+
+## Live simulation
+
+::::::::: {.column-screen-inset}
 
 ```{ojs}
 //| echo: false
@@ -52,9 +54,9 @@ function statLabel(value, textFn, dy, nullValues) {
 }
 ```
 
-::::::: {.grid}
+:::::::: {.grid}
 
-::::: {.g-col-12 .g-col-md-4 .sticky}
+::::::: {.g-col-12 .g-col-md-4 .sticky}
 
 ```{ojs}
 //| echo: false
@@ -140,11 +142,11 @@ Plot.plot({
 })
 ```
 
-:::::
+:::::::
 
-::::: {.g-col-12 .g-col-md-8}
+::::::: {.g-col-12 .g-col-md-8}
 
-:::: {.panel-tabset}
+:::::: {.panel-tabset}
 
 ## Step 1: Calculate δ
 
@@ -469,9 +471,9 @@ viewof alpha = Inputs.select([0.10, 0.05, 0.01], {
 })
 ```
 
-:::: {.grid}
+::::: {.grid}
 
-::: {.g-col-12 .g-col-md-6}
+:::: {.g-col-12 .g-col-md-6}
 
 ```{ojs}
 //| echo: false
@@ -497,9 +499,9 @@ viewof alpha = Inputs.select([0.10, 0.05, 0.01], {
 }
 ```
 
-:::
+::::
 
-::: {.g-col-12 .g-col-md-6}
+:::: {.g-col-12 .g-col-md-6}
 
 ```{ojs}
 //| echo: false
@@ -527,14 +529,232 @@ Plot.plot({
 })
 ```
 
-:::
-
-::::
-
-{{< include _evidentiary-standards.qmd >}}
-
 ::::
 
 :::::
 
+{{< include _evidentiary-standards.qmd >}}
+
+::::::
+
 :::::::
+
+::::::::
+
+:::::::::
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.height = 6 * 0.618,
+  fig.align = "center",
+  out.width = "80%"
+)
+
+options(easystats_display_format = "tt", width = 300)
+```
+
+## Average penguin body mass
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+
+library(tidyverse)
+library(infer)
+library(scales)
+library(ggdist)
+library(parameters)
+library(tinytable)
+
+penguins <- penguins |> drop_na(sex)
+
+theme_set(theme_minimal(base_size = 14))
+
+clrs <- c(
+  "#f3d567",
+  "#ee9b43",
+  "#e74b47",
+  "#b80422",
+  "#172767",
+  "#19798b"
+)
+
+set.seed(564058)
+
+lbl_comma <- label_comma(style_negative = "minus")
+lbl_p <- label_pvalue(prefix = c("< ", "", "> "))
+lbl_p_pct <- \(x) ifelse(x < 0.001, "< 0.1%", label_percent(accuracy = 0.01)(x))
+```
+
+For this example, we'll use the body mass of all penguins near Palmer Station, Antarctica. We want to know if the average body mass is different from 4,000 grams.
+
+At first glance, it looks like most penguins are already roughly around 4,000 grams. Some are lighter, a lot are heavier, but 4,000 seems fairly reasonable.
+
+```{r}
+#| echo: false
+
+ggplot(penguins, aes(x = body_mass)) +
+  geom_histogram(binwidth = 200, fill = clrs[2], color = "white") +
+  geom_vline(
+    xintercept = 4000,
+    color = clrs[5],
+    linewidth = 1.5
+  ) +
+  annotate(
+    "text",
+    x = 4000,
+    y = Inf,
+    label = "4,000 g",
+    vjust = 2,
+    hjust = -0.1,
+    color = clrs[5],
+    fontface = "bold",
+    size = 5
+  ) +
+  scale_x_continuous(labels = label_comma()) +
+  labs(x = "Body mass (g)", y = "Count")
+```
+
+We can look at this more officially. First, we'll load some packages and check the official average weight:
+
+```{r}
+#| warning: false
+#| message: false
+
+library(tidyverse)
+library(infer)
+library(parameters)
+
+penguins <- penguins |> drop_na(sex)
+
+penguins |>
+  summarize(avg_weight = mean(body_mass))
+```
+
+The sample mean is `{r} lbl_comma(mean(penguins$body_mass))` g, which is a bit higher than our comparison value of 4,000 g. But is that difference real, or could it just be due to random chance?
+
+
+## Null hypothesis inference with {infer}
+
+::::: {.panel-tabset .nav-pills}
+
+### Step 1: Calculate $\delta$
+
+The sample statistic we're interested in is the mean body mass.
+
+```{r}
+#| warning: false
+#| message: false
+
+delta <- penguins |>
+  specify(response = body_mass) |>
+  calculate(stat = "mean")
+delta
+```
+
+The sample mean is **`{r} lbl_comma(delta$stat)` grams.** We're comparing this to μ₀ = 4,000 g, so the difference (δ) is **`{r} lbl_comma(delta$stat - 4000)` grams.**
+
+
+### Step 2: Simulate null world
+
+We create a null distribution by recentering our data around μ₀ = 4,000 g and then bootstrapping (resampling with replacement) from that shifted data. **This creates a world where the true population mean is 4,000 g.**
+
+```{r}
+#| warning: false
+#| message: false
+
+shuffled_data <- penguins |>
+  specify(response = body_mass) |>
+  hypothesize(null = "point", mu = 4000) |>
+  generate(reps = 5000, type = "bootstrap")
+```
+
+Next we need to calculate the mean in each of these 5,000 resampled worlds:
+
+```{r}
+null_world <- shuffled_data |>
+  calculate(stat = "mean")
+null_world
+```
+
+Here's what this null world looks like:
+
+```{r}
+null_world |>
+  visualize()
+```
+
+Notice that the null world is centered around 4,000 g—our comparison value—with variation reflecting what sample means would look like if the true mean really were 4,000 g.
+
+### Step 3: Put $\delta$ in the null world
+
+Next we put our observed sample mean inside that null world to see how comfortably it fits there.
+
+```{r}
+null_world |>
+  visualize() +
+  shade_p_value(obs_stat = delta, direction = NULL)
+```
+
+That's way out in the right tail. A sample mean of `{r} lbl_comma(delta$stat)` g looks really unlikely in a world where the true mean is 4,000 g.
+
+### Step 4: p-value
+
+We can quantify the probability of seeing that red line in a null world. This is a **p-value**—the probability of seeing a sample mean at least that far from μ₀ in a world where the true mean is 4,000 g.
+
+```{r}
+null_world |>
+  visualize() +
+  shade_p_value(obs_stat = delta, direction = "two-sided")
+```
+
+```{r}
+p_value <- null_world |>
+  get_p_value(obs_stat = delta, direction = "two-sided")
+p_value
+```
+
+The p-value is **`{r} lbl_p(p_value$p_value)`**. This means that in a world where the true mean body mass is 4,000 g, there is a **`{r} lbl_p_pct(p_value$p_value)`** chance of seeing a sample mean at least as far from 4,000 as **`{r} lbl_comma(delta$stat)`**.
+
+### Step 5: Decision
+
+Finally, we have to decide if the p-value meets an evidentiary standard or threshold that would provide us with enough evidence that we *aren't* in the null world (or, in more statsy terms, enough evidence to reject the null hypothesis).
+
+Using an α of 0.05, the p-value is **`{r} lbl_p(p_value$p_value)`**, which is less than 0.05. We have enough evidence to say that the average penguin body mass is **statistically significantly different from 4,000 grams.**
+
+```{r}
+null_world |>
+  visualize() +
+  shade_p_value(obs_stat = delta, direction = "two-sided")
+```
+
+:::::
+
+
+## Null hypothesis inference with `t.test()`
+
+In practice, most people do not simulate null worlds. Instead, they use a one-sample *t*-test, which approximates the null world mathematically using a *t*-distribution. **The intuition is the same**: a p-value is still the probability of seeing a sample mean at least that extreme in a world where the true mean is μ₀.
+
+To test whether the average body mass differs from 4,000 g, we can use `t.test()` with `mu = 4000`:
+
+```{r}
+t.test(penguins$body_mass, mu = 4000)
+```
+
+```{r}
+#| echo: false
+
+results <- t.test(penguins$body_mass, mu = 4000)
+```
+
+The p-value is in that wall of text—it's 3.952e-06, or 3.952 × 10^−6^, or `{r} label_number(accuracy = 0.000000001)(results$p.value)`. That's really tiny. In a world where the average weight for all penguins is around 4,000 grams, it would be virtually impossible to see a difference as extreme as `{r} lbl_comma(delta$stat)`. We have enough evidence to declare that difference is statistically significant.
+
+If you don't like all that text output, you can feed the results of `t.test()` to the `model_parameters()` function from [the {parameters} package](https://easystats.github.io/parameters/):
+
+```{r}
+t.test(penguins$body_mass, mu = 4000) |>
+  model_parameters() |>
+  display(caption = "")
+```

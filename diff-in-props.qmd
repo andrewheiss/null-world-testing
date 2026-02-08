@@ -1,16 +1,18 @@
 ---
 title: "Difference in proportions"
-page-layout: custom
-format:
-  html:
-    include-in-header:
-      - text: |
-          <style>
-          #quarto-content {
-            padding: 1em 1.5em;
-          }
-          </style>
 ---
+
+::: {.column-screen .hero-banner-mini}
+
+# Difference in proportions
+
+◎◉○
+
+:::
+
+## Live simulation
+
+::::::::: {.column-screen-inset}
 
 ```{ojs}
 //| echo: false
@@ -64,9 +66,9 @@ function statLabel(value, textFn, dy, nullValues) {
 }
 ```
 
-::::::: {.grid}
+:::::::: {.grid}
 
-::::: {.g-col-12 .g-col-md-4 .sticky}
+::::::: {.g-col-12 .g-col-md-4 .sticky}
 
 ```{ojs}
 //| echo: false
@@ -145,11 +147,11 @@ Plot.plot({
 })
 ```
 
-:::::
+:::::::
 
-::::: {.g-col-12 .g-col-md-8}
+::::::: {.g-col-12 .g-col-md-8}
 
-:::: {.panel-tabset}
+:::::: {.panel-tabset}
 
 ## Step 1: Calculate δ
 
@@ -415,7 +417,7 @@ Plot.plot({
 
 ## Step 4: p-value
 
-We can actually quantify the probability of seeing that red line in a null world. This is a **p-value**—the probability of seeing a δ at least that big in a world where there's no difference between the group proportions.
+We can actually quantify the probability of seeing that red line in a null world. This is a **p-value**—the probability of seeing a δ at least that extreme in a world where there's no difference between the group proportions.
 
 ::: {style="width: 75%;"}
 
@@ -503,9 +505,9 @@ viewof alpha = Inputs.select([0.10, 0.05, 0.01], {
 })
 ```
 
-:::: {.grid}
+::::: {.grid}
 
-::: {.g-col-12 .g-col-md-6}
+:::: {.g-col-12 .g-col-md-6}
 
 ```{ojs}
 //| echo: false
@@ -531,9 +533,9 @@ viewof alpha = Inputs.select([0.10, 0.05, 0.01], {
 }
 ```
 
-:::
+::::
 
-::: {.g-col-12 .g-col-md-6}
+:::: {.g-col-12 .g-col-md-6}
 
 ```{ojs}
 //| echo: false
@@ -564,14 +566,237 @@ Plot.plot({
 })
 ```
 
-:::
-
-::::
-
-{{< include _evidentiary-standards.qmd >}}
-
 ::::
 
 :::::
 
+{{< include _evidentiary-standards.qmd >}}
+
+::::::
+
 :::::::
+
+::::::::
+
+:::::::::
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.height = 6 * 0.618,
+  fig.align = "center",
+  out.width = "80%"
+)
+
+options(easystats_display_format = "tt", width = 300)
+```
+
+## Penguin sex ratios across species
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+
+library(tidyverse)
+library(infer)
+library(scales)
+library(parameters)
+library(tinytable)
+
+penguins <- penguins |> drop_na(sex)
+
+theme_set(theme_minimal(base_size = 14))
+
+clrs <- c(
+  "#f3d567",
+  "#ee9b43",
+  "#e74b47",
+  "#b80422",
+  "#172767",
+  "#19798b"
+)
+
+set.seed(564058)
+
+lbl_comma <- label_comma(style_negative = "minus")
+lbl_p <- label_pvalue(prefix = c("< ", "", "> "))
+lbl_p_pct <- \(x) ifelse(x < 0.001, "< 0.1%", label_percent(accuracy = 0.01)(x))
+
+penguins_ad_gen <- penguins |>
+  filter(species %in% c("Adelie", "Gentoo"))
+```
+
+For this example, we want to know if the proportion of female penguins is the same in Adelie and Gentoo species. Here's what the sex breakdown looks like:
+
+```{r}
+#| echo: false
+
+penguins_ad_gen |>
+  count(species, sex) |>
+  group_by(species) |>
+  mutate(prop = n / sum(n)) |>
+  ggplot(aes(x = species, y = prop, fill = sex)) +
+  geom_col(position = "dodge") +
+  scale_fill_manual(values = c(clrs[5], clrs[2])) +
+  scale_y_continuous(labels = label_percent()) +
+  labs(x = "Species", y = "Proportion", fill = "Sex")
+```
+
+We can look at this more officially. First, we'll load some packages:
+
+```{.r}
+library(tidyverse)
+library(infer)
+library(parameters)
+
+penguins <- penguins |> drop_na(sex)
+```
+
+The proportions look pretty similar across the two species:
+
+```{r}
+penguins |>
+  filter(species %in% c("Adelie", "Gentoo")) |>
+  count(species, sex) |>
+  group_by(species) |>
+  mutate(proportion = n / sum(n)) |>
+  filter(sex == "female")
+```
+
+Is there actually a difference, or is it just noise? We need to do some hypothesis testing.
+
+
+## Null hypothesis inference with {infer}
+
+::::: {.panel-tabset .nav-pills}
+
+### Step 1: Calculate $\delta$
+
+The sample statistic we're interested in is the difference in the proportion of female penguins between Adelie and Gentoo species.
+
+```{r}
+#| warning: false
+#| message: false
+
+delta <- penguins |>
+  filter(species %in% c("Adelie", "Gentoo")) |>
+  specify(sex ~ species, success = "female") |>
+  calculate(stat = "diff in props", order = c("Adelie", "Gentoo"))
+delta
+```
+
+The difference in proportions is **`{r} round(delta$stat, 3)`** (or **`{r} round(delta$stat * 100, 1)` percentage points**).
+
+
+### Step 2: Simulate null world
+
+We create a null distribution by shuffling (or "permuting") the species labels. This simulates a world where all the observed sexes are still the same, but where species assignment doesn't matter. **This eliminates all differences between the species.**
+
+```{r}
+#| warning: false
+#| message: false
+
+shuffled_data <- penguins |>
+  filter(species %in% c("Adelie", "Gentoo")) |>
+  specify(sex ~ species, success = "female") |>
+  hypothesize(null = "independence") |>
+  generate(reps = 5000, type = "permute")
+```
+
+Next we calculate the difference in proportions in each of these 5,000 shuffled worlds:
+
+```{r}
+null_world <- shuffled_data |>
+  calculate(stat = "diff in props", order = c("Adelie", "Gentoo"))
+null_world
+```
+
+Here's what this null world looks like:
+
+```{r}
+null_world |>
+  visualize()
+```
+
+Notice that the differences are centered around 0, reflecting a world where species doesn't affect the sex ratio.
+
+### Step 3: Put $\delta$ in the null world
+
+Next we put δ inside that null world to see how comfortably it fits there.
+
+```{r}
+null_world |>
+  visualize() +
+  shade_p_value(obs_stat = delta, direction = NULL)
+```
+
+The observed difference of `{r} round(delta$stat, 3)` sits right in the middle of the null world. It doesn't look extreme at all.
+
+### Step 4: p-value
+
+We can quantify the probability of seeing that red line in a null world. This is a **p-value**—the probability of seeing a difference in proportions at least that extreme in a world where the proportions are the same.
+
+```{r}
+null_world |>
+  visualize() +
+  shade_p_value(obs_stat = delta, direction = "two-sided")
+```
+
+```{r}
+p_value <- null_world |>
+  get_p_value(obs_stat = delta, direction = "two-sided")
+p_value
+```
+
+The p-value is **`{r} lbl_p(p_value$p_value)`**. This means that in a world where there is no difference in sex ratios between the species, there is a **`{r} lbl_p_pct(p_value$p_value)`** chance of seeing a difference in proportions at least as extreme as **`{r} round(abs(delta$stat), 3)`**.
+
+### Step 5: Decision
+
+Finally, we have to decide if the p-value meets an evidentiary standard or threshold that would provide us with enough evidence that we *aren't* in the null world (or, in more statsy terms, enough evidence to reject the null hypothesis).
+
+Using an α of 0.05, the p-value is **`{r} lbl_p(p_value$p_value)`**, which is greater than 0.05. We don't have enough evidence to say that there's a difference in sex ratios between Adelie and Gentoo penguins. The difference is **not statistically significant.**
+
+This does **not** mean the proportions are identical—we just can't distinguish the difference from random noise with this sample.
+
+```{r}
+null_world |>
+  visualize() +
+  shade_p_value(obs_stat = delta, direction = "two-sided")
+```
+
+:::::
+
+
+## Null hypothesis inference with `prop.test()`
+
+In practice, most people do not simulate null worlds. Instead, they use a proportion test (`prop.test()`), which approximates the null world mathematically using a χ² distribution. **The intuition is the same**: a p-value is still the probability of seeing a difference at least that extreme in a world where the proportions are equal.
+
+```{r}
+tab <- penguins |>
+  filter(species %in% c("Adelie", "Gentoo")) |>
+  mutate(species = fct_drop(species)) |>
+  count(species, sex) |>
+  pivot_wider(names_from = sex, values_from = n) |>
+  column_to_rownames("species") |>
+  as.matrix()
+
+prop.test(tab)
+```
+
+```{r}
+#| echo: false
+
+results <- prop.test(tab)
+```
+
+Buried in that output is the p-value: `{r} lbl_p(results$p.value)`. That's huge. In a world where the two species have the same sex ratios, there's a `{r} lbl_p_pct(results$p.value)` probability of seeing a difference in proportions of `{r} round(delta$stat * 100, 1)` percentage points. We don't have enough evidence to declare that there's a difference between the two species. That doesn't necessarily mean that there's *no* difference. It means that if there really were a difference, we wouldn't be able to detect it.
+
+If you don't like all that text output, you can feed the results of `prop.test()` to the `model_parameters()` function from [the {parameters} package](https://easystats.github.io/parameters/):
+
+```{r}
+prop.test(tab) |>
+  model_parameters() |>
+  display(caption = "")
+```

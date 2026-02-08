@@ -1,16 +1,18 @@
 ---
 title: "Regression slope"
-page-layout: custom
-format:
-  html:
-    include-in-header:
-      - text: |
-          <style>
-          #quarto-content {
-            padding: 1em 1.5em;
-          }
-          </style>
 ---
+
+::: {.column-screen .hero-banner-mini}
+
+# Regression slope
+
+◎◉○
+
+:::
+
+## Live simulation
+
+::::::::: {.column-screen-inset}
 
 ```{ojs}
 //| echo: false
@@ -67,9 +69,9 @@ function statLabel(value, textFn, dy, nullValues) {
 }
 ```
 
-::::::: {.grid}
+:::::::: {.grid}
 
-::::: {.g-col-12 .g-col-md-4 .sticky}
+::::::: {.g-col-12 .g-col-md-4 .sticky}
 
 ```{ojs}
 //| echo: false
@@ -142,11 +144,11 @@ Plot.plot({
 })
 ```
 
-:::::
+:::::::
 
-::::: {.g-col-12 .g-col-md-8}
+::::::: {.g-col-12 .g-col-md-8}
 
-:::: {.panel-tabset}
+:::::: {.panel-tabset}
 
 ## Step 1: Calculate δ
 
@@ -509,7 +511,7 @@ Plot.plot({
 
 ## Step 4: p-value
 
-We can actually quantify the probability of seeing that red line in a null world. This is a **p-value**—the probability of seeing a δ at least that big in a world where there's no relationship between x and y.
+We can actually quantify the probability of seeing that red line in a null world. This is a **p-value**—the probability of seeing a δ at least that extreme in a world where there's no relationship between x and y.
 
 ::: {style="width: 75%;"}
 
@@ -646,9 +648,9 @@ viewof alpha = Inputs.select([0.10, 0.05, 0.01], {
 })
 ```
 
-:::: {.grid}
+::::: {.grid}
 
-::: {.g-col-12 .g-col-md-6}
+:::: {.g-col-12 .g-col-md-6}
 
 ```{ojs}
 //| echo: false
@@ -674,9 +676,9 @@ viewof alpha = Inputs.select([0.10, 0.05, 0.01], {
 }
 ```
 
-:::
+::::
 
-::: {.g-col-12 .g-col-md-6}
+:::: {.g-col-12 .g-col-md-6}
 
 ```{ojs}
 //| echo: false
@@ -750,14 +752,202 @@ Plot.plot({
 })
 ```
 
-:::
-
-::::
-
-{{< include _evidentiary-standards.qmd >}}
-
 ::::
 
 :::::
 
+{{< include _evidentiary-standards.qmd >}}
+
+::::::
+
 :::::::
+
+::::::::
+
+:::::::::
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.height = 6 * 0.618,
+  fig.align = "center",
+  out.width = "80%"
+)
+
+options(easystats_display_format = "tt", width = 300)
+```
+
+## Flipper length and body mass
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+
+library(tidyverse)
+library(infer)
+library(scales)
+library(parameters)
+library(tinytable)
+
+penguins <- penguins |> drop_na(sex)
+
+theme_set(theme_minimal(base_size = 14))
+
+clrs <- c(
+  "#f3d567",
+  "#ee9b43",
+  "#e74b47",
+  "#b80422",
+  "#172767",
+  "#19798b"
+)
+
+set.seed(564058)
+
+lbl_comma <- label_comma(style_negative = "minus")
+lbl_p <- label_pvalue(prefix = c("< ", "", "> "))
+lbl_p_pct <- \(x) ifelse(x < 0.001, "< 0.1%", label_percent(accuracy = 0.01)(x))
+```
+
+For this example, we want to know if flipper length predicts body mass in penguins near Palmer Station, Antarctica. Here's a scatterplot of the relationship:
+
+```{r}
+#| echo: false
+#| message: false
+
+ggplot(penguins, aes(x = flipper_len, y = body_mass)) +
+  geom_point(color = clrs[6], size = 2) +
+  geom_smooth(method = "lm", color = clrs[4], se = FALSE) +
+  scale_y_continuous(labels = label_comma()) +
+  labs(x = "Flipper length (mm)", y = "Body mass (g)")
+```
+
+There's a clear positive trend—penguins with longer flippers tend to be heavier. But is that relationship real, or could it just be due to random chance? Time for hypothesis testing!
+
+First, we'll load some packages:
+
+```{.r}
+library(tidyverse)
+library(infer)
+library(parameters)
+
+penguins <- penguins |> drop_na(sex)
+```
+
+
+## Null hypothesis inference with {infer}
+
+::::: {.panel-tabset .nav-pills}
+
+### Step 1: Calculate $\delta$
+
+The sample statistic we're interested in is the regression slope—the estimated change in body mass for a one-unit (1 mm) increase in flipper length.
+
+```{r}
+#| warning: false
+#| message: false
+
+delta <- penguins |>
+  specify(body_mass ~ flipper_len) |>
+  calculate(stat = "slope")
+delta
+```
+
+The slope is **`{r} round(delta$stat, 2)`**, meaning that for every additional millimeter of flipper length, body mass increases by about **`{r} round(delta$stat, 1)` grams.**
+
+
+### Step 2: Simulate null world
+
+We create a null distribution by shuffling (or "permuting") the flipper length values. This simulates a world where all the real, measured values of both flipper length and body mass are still the same, but where the relationship between them doesn't matter. **This eliminates any association between flipper length and body mass.**
+
+```{r}
+#| warning: false
+#| message: false
+
+shuffled_data <- penguins |>
+  specify(body_mass ~ flipper_len) |>
+  hypothesize(null = "independence") |>
+  generate(reps = 5000, type = "permute")
+```
+
+Next we fit a regression in each of these 5,000 shuffled worlds and extract the slope:
+
+```{r}
+null_world <- shuffled_data |>
+  calculate(stat = "slope")
+null_world
+```
+
+Here's what this null world looks like:
+
+```{r}
+null_world |>
+  visualize()
+```
+
+Notice that the slopes are centered around 0, reflecting a world where flipper length and body mass are unrelated.
+
+### Step 3: Put $\delta$ in the null world
+
+Next we put δ inside that null world to see how comfortably it fits there.
+
+```{r}
+null_world |>
+  visualize() +
+  shade_p_value(obs_stat = delta, direction = NULL)
+```
+
+That's *way* far to the right and doesn't look likely *at all*. A slope of `{r} round(delta$stat, 2)` is really unlikely in a world where flipper length and body mass are unrelated.
+
+### Step 4: p-value
+
+We can quantify the probability of seeing that red line in a null world. This is a **p-value**—the probability of seeing a slope at least that extreme in a world where there's no relationship between flipper length and body mass.
+
+```{r}
+null_world |>
+  visualize() +
+  shade_p_value(obs_stat = delta, direction = "two-sided")
+```
+
+```{r}
+p_value <- null_world |>
+  get_p_value(obs_stat = delta, direction = "two-sided")
+p_value
+```
+
+The p-value is **`{r} lbl_p(p_value$p_value)`**. This means that in a world where flipper length has no relationship to body mass, there is a **`{r} lbl_p_pct(p_value$p_value)`** chance of seeing a slope at least as extreme as **`{r} round(delta$stat, 2)`**.
+
+### Step 5: Decision
+
+Finally, we have to decide if the p-value meets an evidentiary standard or threshold that would provide us with enough evidence that we *aren't* in the null world (or, in more statsy terms, enough evidence to reject the null hypothesis).
+
+Using an α of 0.05, the p-value is **`{r} lbl_p(p_value$p_value)`**, which is less than 0.05. We have enough evidence to say that the relationship between flipper length and body mass is **statistically significant.**
+
+```{r}
+null_world |>
+  visualize() +
+  shade_p_value(obs_stat = delta, direction = "two-sided")
+```
+
+:::::
+
+
+## Null hypothesis inference with `lm()`
+
+In practice, most people do not simulate null worlds. Instead, they fit a regression model with `lm()`, which uses a *t*-distribution to approximate the null world mathematically and test whether each coefficient is different from 0. **The intuition is the same**: a p-value is still the probability of seeing a slope at least that extreme in a world where the true slope is 0.
+
+```{r}
+model <- lm(body_mass ~ flipper_len, data = penguins)
+summary(model)
+```
+
+Buried in that output is the p-value for the `flipper_len` coefficient: p < 2.2e-16, or p < 2.2 × 10^−16^. That's really tiny. In a world where flipper length had no relationship with body mass, it would be virtually impossible to see a slope as extreme as `{r} round(delta$stat, 2)`. We have enough evidence to declare that the relationship is statistically significant.
+
+If you don't like all that text output, you can feed the model to the `model_parameters()` function from [the {parameters} package](https://easystats.github.io/parameters/):
+
+```{r}
+model |>
+  model_parameters() |>
+  display(caption = "")
+```

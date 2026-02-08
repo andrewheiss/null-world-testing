@@ -29,7 +29,7 @@ Many legal systems have different levels of evidentiary standards:
 
 - Standards of proof in China (judges): [<i class="bi bi-link-45deg"></i>](https://us-asia-law-institute.squarespace.com/s/CPLGlossary.pdf) [<i class="bi bi-link-45deg"></i>](https://www.spp.gov.cn/llyj/201312/t20131220_65802.shtml) [<i class="bi bi-link-45deg"></i>](https://www.spp.gov.cn/spp/llyj/202005/t20200510_460701.shtml)
   - 高度盖然性 [*gāo dù gài rán xìng*] / highly probable (civil cases)
-  - 证据确实充分 [*zhèng jù què shí chōng fēn*] / facts being clear and evidence being sufficient | evidence is definite and sufficient (criminal cases)
+  - 证据确实充分 [*zhèng jù què shí chōng fēn*] / facts being clear and evidence being sufficient | the evidence is definite and sufficient (criminal cases)
 
 - Levels of doubt in Sharia systems (judges): [<i class="bi bi-link-45deg"></i>](https://creighton-intl-comp-law-journal.scholasticahq.com/article/118706-a-world-of-doubt-criminal-standards-of-proof-in-the-common-law-islamic-and-east-asian-legal-traditions) [<i class="bi bi-link-45deg"></i>](https://qawl.com/?p=2212&lang=en) [<i class="bi bi-link-45deg"></i>](https://www.smahate.com/islamic-classes/2013-winter/al-qawaaid-al-fiqhiyyah) [<i class="bi bi-link-45deg"></i>](https://www.arabnews.com/node/219226) [<i class="bi bi-link-45deg"></i>](https://doi.org/10.33102/mjsl.vol12no1.491)
   - غلبة الظن [*ghalabat al-zann*] / preponderance of assumption (ta'zir cases and family matters)
