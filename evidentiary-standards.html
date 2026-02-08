@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Null worlds</title>
+<title>Evidentiary standards – Null worlds</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -48,9 +48,6 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/bootstrap/bootstrap-36c9bdfffd357df8fbe1a7486362f211.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <link href="site_libs/quarto-contrib/fontawesome6-6.7.2/all.min.css" rel="stylesheet">
 <link href="site_libs/quarto-contrib/fontawesome6-6.7.2/latex-fontsize.css" rel="stylesheet">
-<script src="site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
-<link href="site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
-<link href="site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -103,44 +100,15 @@ ul.task-list li input[type="checkbox"] {
 }
 </style>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
-
-<meta property="og:title" content="Null worlds">
+<meta property="og:title" content="Evidentiary standards – Null worlds">
 <meta property="og:description" content="Learn the intuition behind p-values—and conduct any statistical test—through simulation">
 <meta property="og:image" content="https://nullworlds.andrewheiss.com/img/preview.png">
 <meta property="og:site_name" content="Null worlds">
 <meta property="og:locale" content="en_US">
 <meta property="og:image:height" content="875">
 <meta property="og:image:width" content="1671">
-<meta name="twitter:title" content="Null worlds">
+<meta name="twitter:title" content="Evidentiary standards – Null worlds">
 <meta name="twitter:description" content="Learn the intuition behind p-values—and conduct any statistical test—through simulation">
 <meta name="twitter:image" content="https://nullworlds.andrewheiss.com/img/preview.png">
 <meta name="twitter:card" content="summary_large_image">
@@ -184,7 +152,7 @@ window.Quarto = {
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./evidentiary-standards.html"> 
+    <a class="nav-link active" href="./evidentiary-standards.html" aria-current="page"> 
 <span class="menu-text">Evidentiary standards</span></a>
   </li>  
   <li class="nav-item compact">
@@ -205,84 +173,77 @@ window.Quarto = {
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content page-columns page-full" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content page-columns page-full" id="quarto-document-content">
 
-
-
-
-<div class="column-screen hero-image">
-<p><img src="img/black-hole-cropped.jpg" class="img-fluid"></p>
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Evidentiary standards</h1>
 </div>
-<section id="statistical-testing-in-null-worlds" class="level1 column-screen hero-banner">
-<h1>Statistical testing in null worlds</h1>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="evidentiary-standards" class="level1 column-screen hero-banner-mini">
+<h1>Evidentiary standards</h1>
 <p>◎◉○</p>
-<p>Learn the intuition behind p-values through simulation</p>
 </section>
-<div class="home page-columns page-full">
-<section id="there-is-only-one-test" class="level2 page-columns page-full">
-<h2 class="anchored" data-anchor-id="there-is-only-one-test">There is only one test</h2>
-<p>At their core, all statistical tests<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>†</sup></a> can be conducted by following a universal pattern:</p>
+<p>When thinking about p-values and thresholds, I like to imagine myself as a judge or a member of a jury. Many legal systems around the world have formal evidentiary thresholds or standards of proof. If prosecutors provide evidence that meets a threshold (i.e.&nbsp;goes beyond a reasonable doubt, or shows evidence on a balance of probabilities), the judge or jury can rule <em>guilty</em>. If there’s not enough evidence to clear the standard or threshold, the judge or jury has to rule <em>not guilty</em>.</p>
+<p>With p-values:</p>
 <ul>
-<li><strong>Step 1: Calculate a sample statistic, or <span class="math inline">\(\delta\)</span> (“delta”).</strong> This is the main measure you care about: the difference in means, the average, the median, the proportion, the difference in proportions, the slope in a regression model, an odds ratio, etc.</li>
-<li><strong>Step 2: Use simulation to invent a world where <span class="math inline">\(\delta\)</span> is null.</strong> Simulate what the world would look like if there was no difference or relationship between two groups, or if there was no difference in proportions, or where the average value is a specific number.</li>
-<li><strong>Step 3: Look at <span class="math inline">\(\delta\)</span> in the null world.</strong> Put the sample statistic in the null world and see if it fits well.</li>
-<li><strong>Step 4: Calculate the probability that <span class="math inline">\(\delta\)</span> could exist in the null world.</strong> This is the p-value, or the probability that you’d see a <span class="math inline">\(\delta\)</span> at least as extreme in a world where there’s no difference.</li>
-<li><strong>Step 5: Decide if <span class="math inline">\(\delta\)</span> is statistically significant.</strong> Choose some evidentiary standard or threshold for deciding if there’s sufficient proof for rejecting the null world. Standard thresholds (from least to most rigorous) are 0.1, 0.05, and 0.01.</li>
+<li>If the probability of seeing an effect or difference (or δ) in a null world is less than 5% (or whatever the threshold is), we rule it <em>statistically significant</em> and say that the difference does not fit in that world. <strong>We’re pretty confident that it’s not zero.</strong></li>
+<li>If the p-value is larger than the threshold, we do not have enough evidence to claim that δ doesn’t come from a world of where there’s no difference. <strong>We don’t know if it’s not zero.</strong></li>
 </ul>
-<p>That’s all. Five steps. No need to follow <a href="https://www.google.com/search?q=statistical+test+flow+chart">complicated flowcharts to select the best and most appropriate statistical test</a>. No need to decide which pretests you need to run to choose the right flavor of <em>t</em>-test. No need to think about whether you should use a <em>t</em>- or a <em>z</em>- distribution for your test statistic.</p>
-<p>Simulate instead. <a href="https://allendowney.blogspot.com/2016/06/there-is-still-only-one-test.html">There is only one test.</a></p>
-<div class="callout callout-style-default callout-tip callout-titled" title="tl;dr">
+<p>Importantly, <em>if the difference is not significant, that does not mean that there is no difference</em>. <strong>It just means that we can’t detect one if there is</strong>. If a prosecutor doesn’t provide sufficient evidence to clear a standard or threshold, it does not mean that the defendant didn’t do whatever they’re charged with<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>†</sup></a>—it means that the judge or jury can’t detect guilt.</p>
+<div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Tip</span>tl;dr
+<span class="screen-reader-only">Note</span>Different evidentiary standards
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Calculate a number, simulate a null world, calculate the probability of seeing your number in that null world, and decide if that number is significantly different from what is typically seen in the null world.</p>
-</div>
-</div>
-<div class="column-page-inset">
-<p><a href="img/only-one-test.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="img/only-one-test.png" class="img-fluid"></a></p>
-</div>
-</section>
-<section id="examples" class="level2">
-<h2 class="anchored" data-anchor-id="examples">Examples</h2>
-<p>This site contains a few different illustrations of common statistical tests:</p>
+<p>Many legal systems have different levels of evidentiary standards:</p>
 <ul>
-<li><a href="./diff-in-means.html">Difference in means</a></li>
-<li><a href="./diff-in-props.html">Difference in proportions</a></li>
-<li><a href="./one-sample-mean.html">One-sample mean</a></li>
-<li><a href="./regression.html">Regression slope</a></li>
+<li>Standards of proof in most common law systems (juries): <a href="https://righttoremain.org.uk/what-are-the-different-standards-and-burdens-of-proof-in-legal-cases/"><i class="bi bi-link-45deg"></i></a> <a href="https://www.bljsolicitors.co.uk/blog/understanding-the-standard-of-proof-in-criminal-cases/"><i class="bi bi-link-45deg"></i></a>
+<ul>
+<li>Balance of probabilities (civil cases)</li>
+<li>Beyond a reasonable doubt (criminal cases)</li>
+</ul></li>
+<li>Evidentiary thresholds in the United States (juries): <a href="https://www.law.cornell.edu/wex/burden_of_proof"><i class="bi bi-link-45deg"></i></a>
+<ul>
+<li>Preponderance of the evidence (civil cases)</li>
+<li>Clear and convincing evidence (more important civil cases)</li>
+<li>Beyond a reasonable doubt (criminal cases)</li>
+</ul></li>
+<li>Standards of proof in China (judges): <a href="https://us-asia-law-institute.squarespace.com/s/CPLGlossary.pdf"><i class="bi bi-link-45deg"></i></a> <a href="https://www.spp.gov.cn/llyj/201312/t20131220_65802.shtml"><i class="bi bi-link-45deg"></i></a> <a href="https://www.spp.gov.cn/spp/llyj/202005/t20200510_460701.shtml"><i class="bi bi-link-45deg"></i></a>
+<ul>
+<li>高度盖然性 [<em>gāo dù gài rán xìng</em>] / highly probable (civil cases)</li>
+<li>证据确实充分 [<em>zhèng jù què shí chōng fēn</em>] / facts being clear and evidence being sufficient | the evidence is definite and sufficient (criminal cases)</li>
+</ul></li>
+<li>Levels of doubt in Sharia systems (judges): <a href="https://creighton-intl-comp-law-journal.scholasticahq.com/article/118706-a-world-of-doubt-criminal-standards-of-proof-in-the-common-law-islamic-and-east-asian-legal-traditions"><i class="bi bi-link-45deg"></i></a> <a href="https://qawl.com/?p=2212&amp;lang=en"><i class="bi bi-link-45deg"></i></a> <a href="https://www.smahate.com/islamic-classes/2013-winter/al-qawaaid-al-fiqhiyyah"><i class="bi bi-link-45deg"></i></a> <a href="https://www.arabnews.com/node/219226"><i class="bi bi-link-45deg"></i></a> <a href="https://doi.org/10.33102/mjsl.vol12no1.491"><i class="bi bi-link-45deg"></i></a>
+<ul>
+<li>غلبة الظن [<em>ghalabat al-zann</em>] / preponderance of assumption (ta’zir cases and family matters)</li>
+<li>اليقين [<em>yaqin</em>] / certainty (hudud/qisas cases)</li>
+</ul></li>
+<li>Standard of proof in the International Criminal Court (judges): <a href="https://www.icc-cpi.int/about/how-the-court-works"><i class="bi bi-link-45deg"></i></a>
+<ul>
+<li>Beyond reasonable doubt (genocide, crimes against humanity, or war crimes)</li>
+</ul></li>
 </ul>
-</section>
-<section id="do-i-have-to-simulate-everything" class="level2">
-<h2 class="anchored" data-anchor-id="do-i-have-to-simulate-everything">Do I have to simulate everything?</h2>
-<p>No! In practice, you’ll typically run regular regressions, <em>t</em>-tests, or <span class="math inline">\(\chi^2\)</span> tests. These use known theoretical distributions to approximate the null world mathematically rather than through simulation, but <strong>the intuition is identical</strong>: a p-value is still the probability of seeing a <span class="math inline">\(\delta\)</span> at least as extreme in a world where there’s no difference.</p>
-<p>Once you understand this general framework, <a href="https://moderndive.com/v2/hypothesis-testing.html#only-one-test">“you can understand <em>any</em> hypothesis test”</a>, even if it’s not done through simulation.</p>
-<p>But simulation really shines when your <span class="math inline">\(\delta\)</span> is something unusual—something that doesn’t have a convenient built-in test or a place in a <a href="https://www.google.com/search?q=statistical+test+flow+chart">statistical test flowchart</a>.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>‡</sup></a> Want to test a difference in group <em>medians</em>? Some interesting quantity that no textbook has ever named, like the average number of years a country ranks in the top five for GDP growth? You can test it! Define any <span class="math inline">\(\delta\)</span> you want, simulate a null world for it, and get a valid p-value. No flowchart required. <a href="https://infer.netlify.app/">The {infer} package</a> in R makes this straightforward.</p>
-<p>For more examples of this process, and a more formal explanation of why it works, see <a href="https://allendowney.blogspot.com/2016/06/there-is-still-only-one-test.html">Allen Downey’s “There is still only one test”</a> and chapters 7–10 of <a href="https://moderndive.com/">ModernDive</a> (<a href="https://moderndive.com/9-hypothesis-testing.html">especially chapter 8</a>).</p>
-</section>
-<section id="this-all-feels-vaguely-bayesian" class="level2">
-<h2 class="anchored" data-anchor-id="this-all-feels-vaguely-bayesian">This all feels vaguely Bayesian?</h2>
-<p>Yep. All this simulation thinking is actually part of my clandestine plot to get more people curious about Bayesian statistics. This way of thinking prepares you for Bayesian inference, without actually being Bayesian.</p>
-<p>This simulation-based approach mirrors a lot of the computational thinking behind Bayesian statistics. In both approaches, we (1) start with an explicit data-generating process and (2) think about uncertainty with simulation instead of formulas.</p>
-<p>But there’s an important difference in what we’re simulating!</p>
-<p>With traditional null hypothesis testing, we simulate a null world and ask:</p>
-<blockquote class="blockquote">
-<p>If this were the world we lived in, how surprising would our observed <span class="math inline">\(\delta\)</span> be?</p>
-</blockquote>
-<p>Bayesian statistics flips this. Instead of asking how extreme our data (or <span class="math inline">\(\delta\)</span>) is in a single null world, we model uncertainty about the parameter <span class="math inline">\(\delta\)</span> itself. After combining prior beliefs with observed data, we get a posterior distribution that we can simulate from to ask:</p>
-<blockquote class="blockquote">
-<p>What range of values of <span class="math inline">\(\delta\)</span> are most plausible, given the data we’ve observed?</p>
-</blockquote>
-<p>If that sounds fun—and if you’d rather say things like “there’s an X% probability that <span class="math inline">\(\delta\)</span> is positive” or “<span class="math inline">\(\delta\)</span> is most likely between X and Y” instead of the convoluted “in a world where <span class="math inline">\(\delta\)</span> is 0ish, there’s an X% probability of seeing a <span class="math inline">\(\delta\)</span> at least as extreme as what we observed”—check out <a href="https://www.bayesrulesbook.com/"><em>Bayes Rules!</em></a> for the best introduction I’ve found to Bayesian modeling.</p>
-</section>
 </div>
-<div style="font-size: 80%; text-align: right;">
-<p>Photo by <a href="https://unsplash.com/@boliviainteligente">BoliviaInteligente</a> on <a href="https://unsplash.com/photos/a-black-hole-in-the-center-of-a-black-hole-MO6wb4hdhZo">Unsplash</a></p>
 </div>
 
 
@@ -291,13 +252,9 @@ window.Quarto = {
 <div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
 
 <ol>
-<li id="fn1" data-marker="†"><div><p>At least for null hypothesis significance testing (NHST). Bayesian
-inference is different (see more about that below!). <a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></div></li>
-<li id="fn2" data-marker="‡"><div><p>See chapter 1 of Richard McElreath’s <em>Statistical Rethinking</em>
-for more about issues with statistical test flowcharts. He has a <a href="https://www.youtube.com/watch?v=cclUd_HoRlo">free lecture
-video</a> and <a href="https://speakerdeck.com/rmcelreath/statistical-rethinking-2022-lecture-01">slides</a>
-and <a href="https://github.com/rmcelreath/stat_rethinking_2022">other
-resources here</a>. <a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></div></li>
+<li id="fn1" data-marker="†"><div><p>Kind of—in common law systems, defendants are presumed innocent until
+proven guilty, so if there’s not enough evidence to prove guilt, they
+are innocent by definition. <a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></div></li>
 </ol>
 </section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -708,44 +665,12 @@ resources here</a>. <a href="#fnref2" class="footnote-back" role="doc-backlink">
 </div>   
     <div class="nav-footer-center">
 <p>◎◉○</p>
-<div class="toc-actions"><ul><li><a href="https://github.com/andrewheiss/null-world-testing/blob/main/index.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/andrewheiss/null-world-testing/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+<div class="toc-actions"><ul><li><a href="https://github.com/andrewheiss/null-world-testing/blob/main/evidentiary-standards.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/andrewheiss/null-world-testing/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
     <div class="nav-footer-right">
 <p>Made with <i class="fa-brands fa-r-project" aria-label="r-project"></i> and <a href="https://quarto.org/">Quarto</a></p>
 </div>
   </div>
 </footer>
-<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
-(function() {
-  let previousOnload = window.onload;
-  window.onload = () => {
-    if (previousOnload) {
-      previousOnload();
-    }
-    lightboxQuarto.on('slide_before_load', (data) => {
-      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
-      const href = trigger.getAttribute('href');
-      if (href !== null) {
-        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
-        if (imgEl !== null) {
-          const srcAttr = imgEl.getAttribute("src");
-          if (srcAttr && srcAttr.startsWith("data:")) {
-            slideConfig.href = srcAttr;
-          }
-        }
-      } 
-    });
-  
-    lightboxQuarto.on('slide_after_load', (data) => {
-      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
-      if (window.Quarto?.typesetMath) {
-        window.Quarto.typesetMath(slideNode);
-      }
-    });
-  
-  };
-  
-})();
-          </script>
 
 
 

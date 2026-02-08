@@ -2,22 +2,26 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://nullworlds.andrewheiss.com/regression.html</loc>
-    <lastmod>2026-02-07T23:56:02.485Z</lastmod>
+    <lastmod>2026-02-08T00:12:07.595Z</lastmod>
   </url>
   <url>
     <loc>https://nullworlds.andrewheiss.com/index.html</loc>
-    <lastmod>2026-02-08T00:02:04.139Z</lastmod>
-  </url>
-  <url>
-    <loc>https://nullworlds.andrewheiss.com/diff-in-means.html</loc>
-    <lastmod>2026-02-07T23:01:39.325Z</lastmod>
+    <lastmod>2026-02-08T00:11:22.622Z</lastmod>
   </url>
   <url>
     <loc>https://nullworlds.andrewheiss.com/diff-in-props.html</loc>
-    <lastmod>2026-02-07T23:55:47.576Z</lastmod>
+    <lastmod>2026-02-08T00:07:56.749Z</lastmod>
+  </url>
+  <url>
+    <loc>https://nullworlds.andrewheiss.com/diff-in-means.html</loc>
+    <lastmod>2026-02-08T00:53:21.268Z</lastmod>
+  </url>
+  <url>
+    <loc>https://nullworlds.andrewheiss.com/evidentiary-standards.html</loc>
+    <lastmod>2026-02-08T00:10:56.947Z</lastmod>
   </url>
   <url>
     <loc>https://nullworlds.andrewheiss.com/one-sample-mean.html</loc>
-    <lastmod>2026-02-07T23:55:55.518Z</lastmod>
+    <lastmod>2026-02-08T00:10:11.497Z</lastmod>
   </url>
 </urlset>
