@@ -5,6 +5,9 @@ project:
   preview:
     port: 7777
 
+execute:
+  freeze: auto
+
 website:
   title: "Null worlds"
   description: "Learn the intuition behind p-values—and conduct any statistical test—through simulation"

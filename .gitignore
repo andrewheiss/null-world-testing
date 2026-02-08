@@ -5,6 +5,7 @@
 
 /_site/
 /.quarto/
+/_freeze/
 
 **/*.quarto_ipynb
 
