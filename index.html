@@ -43,9 +43,9 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-a67ac2868200dddf7a4f0e3ae403775c.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-0f56b4be3ca589603b7829df44446ed8.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-dark-de30fa1b9f39b12717e5258e78d953c3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/bootstrap/bootstrap-0f56b4be3ca589603b7829df44446ed8.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-36c9bdfffd357df8fbe1a7486362f211.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark-dec719f2019e0933b9cf23f43a313db2.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-36c9bdfffd357df8fbe1a7486362f211.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <link href="site_libs/quarto-contrib/fontawesome6-6.7.2/all.min.css" rel="stylesheet">
 <link href="site_libs/quarto-contrib/fontawesome6-6.7.2/latex-fontsize.css" rel="stylesheet">
 <script src="site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
@@ -179,11 +179,7 @@ window.Quarto = {
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./regression.html"> 
-<span class="menu-text">Regression</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./regular-p-values.html"> 
-<span class="menu-text">Regular p-values</span></a>
+<span class="menu-text">Regression slope</span></a>
   </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
@@ -226,10 +222,11 @@ window.Quarto = {
 <li><strong>Step 1: Calculate a sample statistic, or <span class="math inline">\(\delta\)</span> (“delta”).</strong> This is the main measure you care about: the difference in means, the average, the median, the proportion, the difference in proportions, the slope in a regression model, an odds ratio, etc.</li>
 <li><strong>Step 2: Use simulation to invent a world where <span class="math inline">\(\delta\)</span> is null.</strong> Simulate what the world would look like if there was no difference or relationship between two groups, or if there was no difference in proportions, or where the average value is a specific number.</li>
 <li><strong>Step 3: Look at <span class="math inline">\(\delta\)</span> in the null world.</strong> Put the sample statistic in the null world and see if it fits well.</li>
-<li><strong>Step 4: Calculate the probability that <span class="math inline">\(\delta\)</span> could exist in null world.</strong> This is the p-value, or the probability that you’d see a <span class="math inline">\(\delta\)</span> at least as extreme in a world where there’s no difference.</li>
+<li><strong>Step 4: Calculate the probability that <span class="math inline">\(\delta\)</span> could exist in the null world.</strong> This is the p-value, or the probability that you’d see a <span class="math inline">\(\delta\)</span> at least as extreme in a world where there’s no difference.</li>
 <li><strong>Step 5: Decide if <span class="math inline">\(\delta\)</span> is statistically significant.</strong> Choose some evidentiary standard or threshold for deciding if there’s sufficient proof for rejecting the null world. Standard thresholds (from least to most rigorous) are 0.1, 0.05, and 0.01.</li>
 </ul>
-<p>That’s all. Five steps. No need to follow <a href="https://www.google.com/search?q=statistical+test+flow+chart">complicated flowcharts to select the best and most appropriate statistical test</a>. No need to decide which pretests you need to run to choose the right flavor of <em>t</em>-test. No need to think about whether you should use a <em>t</em>- or a <em>z</em>- distribution for your test statistic. Simulate instead.</p>
+<p>That’s all. Five steps. No need to follow <a href="https://www.google.com/search?q=statistical+test+flow+chart">complicated flowcharts to select the best and most appropriate statistical test</a>. No need to decide which pretests you need to run to choose the right flavor of <em>t</em>-test. No need to think about whether you should use a <em>t</em>- or a <em>z</em>- distribution for your test statistic.</p>
+<p>Simulate instead. <a href="https://allendowney.blogspot.com/2016/06/there-is-still-only-one-test.html">There is only one test.</a></p>
 <div class="callout callout-style-default callout-tip callout-titled" title="tl;dr">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -247,8 +244,8 @@ window.Quarto = {
 <p><a href="img/only-one-test.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="img/only-one-test.png" class="img-fluid"></a></p>
 </div>
 </section>
-<section id="example-simulations" class="level2">
-<h2 class="anchored" data-anchor-id="example-simulations">Example simulations</h2>
+<section id="examples" class="level2">
+<h2 class="anchored" data-anchor-id="examples">Examples</h2>
 <p>This site contains a few different illustrations of common statistical tests:</p>
 <ul>
 <li><a href="./diff-in-means.html">Difference in means</a></li>
@@ -259,20 +256,10 @@ window.Quarto = {
 </section>
 <section id="do-i-have-to-simulate-everything" class="level2">
 <h2 class="anchored" data-anchor-id="do-i-have-to-simulate-everything">Do I have to simulate everything?</h2>
-<p>No!</p>
-<p>You <em>can</em> use <a href="https://infer.netlify.app/">the {infer} package</a> in R to conduct simulation-based hypothesis tests yourself with your own data.</p>
-<p>But—most likely—you’ll never actually do your own simulation-based testing (which is fine!). Thinking about null worlds is still <em>extremely valuable</em> for understanding the intuition behind hypothesis testing and p-values. This page shows the same tests using regular statistical functions, but interprets the p-values using the same null world logic:</p>
-<ul>
-<li><a href="./regular-p-values.html">Regular P-values</a></li>
-</ul>
-</section>
-<section id="why-does-this-work" class="level2">
-<h2 class="anchored" data-anchor-id="why-does-this-work">Why does this work?</h2>
-<p>TODO</p>
-<p>Allen Downey</p>
-<p>Richard McElreath</p>
-<p>{infer}</p>
-<p>ModernDive - https://moderndive.com/v2/hypothesis-testing.html#ht-case-study</p>
+<p>No! In practice, you’ll typically run regular regressions, <em>t</em>-tests, or <span class="math inline">\(\chi^2\)</span> tests. These use known theoretical distributions to approximate the null world mathematically rather than through simulation, but <strong>the intuition is identical</strong>: a p-value is still the probability of seeing a <span class="math inline">\(\delta\)</span> at least as extreme in a world where there’s no difference.</p>
+<p>Once you understand this general framework, <a href="https://moderndive.com/v2/hypothesis-testing.html#only-one-test">“you can understand <em>any</em> hypothesis test”</a>, even if it’s not done through simulation.</p>
+<p>But simulation really shines when your <span class="math inline">\(\delta\)</span> is something unusual—something that doesn’t have a convenient built-in test or a place in a <a href="https://www.google.com/search?q=statistical+test+flow+chart">statistical test flowchart</a>.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>‡</sup></a> Want to test a difference in group <em>medians</em>? Some interesting quantity that no textbook has ever named, like the average number of years a country ranks in the top five for GDP growth? You can test it! Define any <span class="math inline">\(\delta\)</span> you want, simulate a null world for it, and get a valid p-value. No flowchart required. <a href="https://infer.netlify.app/">The {infer} package</a> in R makes this straightforward.</p>
+<p>For more examples of this process, and a more formal explanation of why it works, see <a href="https://allendowney.blogspot.com/2016/06/there-is-still-only-one-test.html">Allen Downey’s “There is still only one test”</a> and chapters 7–10 of <a href="https://moderndive.com/">ModernDive</a> (<a href="https://moderndive.com/9-hypothesis-testing.html">especially chapter 8</a>).</p>
 </section>
 <section id="this-all-feels-vaguely-bayesian" class="level2">
 <h2 class="anchored" data-anchor-id="this-all-feels-vaguely-bayesian">This all feels vaguely Bayesian?</h2>
@@ -302,6 +289,11 @@ window.Quarto = {
 <ol>
 <li id="fn1" data-marker="†"><div><p>At least for null hypothesis significance testing (NHST). Bayesian
 inference is different (see more about that below!). <a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></div></li>
+<li id="fn2" data-marker="‡"><div><p>See chapter 1 of Richard McElreath’s <em>Statistical Rethinking</em>
+for more about issues with statistical test flowcharts. He has a <a href="https://www.youtube.com/watch?v=cclUd_HoRlo">free lecture
+video</a> and <a href="https://speakerdeck.com/rmcelreath/statistical-rethinking-2022-lecture-01">slides</a>
+and <a href="https://github.com/rmcelreath/stat_rethinking_2022">other
+resources here</a>. <a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></div></li>
 </ol>
 </section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

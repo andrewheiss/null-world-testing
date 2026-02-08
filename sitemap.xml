@@ -1,27 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://nullworlds.andrewheiss.com/regular-p-values.html</loc>
-    <lastmod>2026-02-06T17:29:11.859Z</lastmod>
-  </url>
-  <url>
-    <loc>https://nullworlds.andrewheiss.com/one-sample-mean.html</loc>
-    <lastmod>2026-02-06T17:29:11.829Z</lastmod>
-  </url>
-  <url>
-    <loc>https://nullworlds.andrewheiss.com/diff-in-props.html</loc>
-    <lastmod>2026-02-06T17:29:11.811Z</lastmod>
-  </url>
-  <url>
-    <loc>https://nullworlds.andrewheiss.com/diff-in-means.html</loc>
-    <lastmod>2026-02-06T17:29:11.794Z</lastmod>
+    <loc>https://nullworlds.andrewheiss.com/regression.html</loc>
+    <lastmod>2026-02-07T23:56:02.485Z</lastmod>
   </url>
   <url>
     <loc>https://nullworlds.andrewheiss.com/index.html</loc>
-    <lastmod>2026-02-07T15:46:22.544Z</lastmod>
+    <lastmod>2026-02-08T00:02:04.139Z</lastmod>
   </url>
   <url>
-    <loc>https://nullworlds.andrewheiss.com/regression.html</loc>
-    <lastmod>2026-02-06T17:29:11.845Z</lastmod>
+    <loc>https://nullworlds.andrewheiss.com/diff-in-means.html</loc>
+    <lastmod>2026-02-07T23:01:39.325Z</lastmod>
+  </url>
+  <url>
+    <loc>https://nullworlds.andrewheiss.com/diff-in-props.html</loc>
+    <lastmod>2026-02-07T23:55:47.576Z</lastmod>
+  </url>
+  <url>
+    <loc>https://nullworlds.andrewheiss.com/one-sample-mean.html</loc>
+    <lastmod>2026-02-07T23:55:55.518Z</lastmod>
   </url>
 </urlset>
