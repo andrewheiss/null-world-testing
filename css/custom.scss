@@ -147,3 +147,22 @@ thead th {
     }
   }
 }
+
+// OJS buttons get the classes "btn btn-quarto" but you can't add other
+// bootstrap button classes to them. But Quarto can see Bootstrap mix-ins when
+// it compiles this scss file, so we can inject button variants here
+.simulation {
+  .btn.btn-quarto, div.cell-output-display .btn-quarto {
+    @include button-variant($success, $success);
+    color: #fff;
+    margin-bottom: 1rem;
+  }
+
+  .shuffled {
+    margin-bottom: 1rem;
+  }
+
+  .observablehq svg {
+    margin-bottom: 1rem;
+  }
+}

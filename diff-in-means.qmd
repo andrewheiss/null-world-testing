@@ -25,7 +25,8 @@ clrs = ({
   coral: "#e74b47",
   crimson: "#b80422",
   navy: "#172767",
-  teal: "#19798b"
+  teal: "#19798b",
+  gray: "#4d4d4d"
 })
 
 function statLabel(value, textFn, dy, nullValues) {
@@ -163,7 +164,7 @@ Plot.plot({
 
 ::::::: {.g-col-12 .g-col-md-8}
 
-:::::: {.panel-tabset .nav-pills}
+:::::: {.panel-tabset .nav-pills .simulation}
 
 ## Step 1: Calculate δ
 
@@ -292,9 +293,9 @@ shuffle_preview = {
 }
 ```
 
-::::: {.grid}
+::::: {.grid .shuffled}
 
-:::: {.g-col-6}
+:::: {.g-col-12 .g-col-sm-6 .g-col-lg-5 .g-col-xl-4}
 
 **Original data**
 
@@ -303,7 +304,7 @@ shuffle_preview = {
 
 Inputs.table(shuffle_preview.original, {
   columns: [" ", "Group", "Outcome"],
-  rows: 8,
+  rows: 12,
   sort: false,
   select: false
 })
@@ -311,7 +312,7 @@ Inputs.table(shuffle_preview.original, {
 
 ::::
 
-:::: {.g-col-6}
+:::: {.g-col-12 .g-col-sm-6 .g-col-lg-5 .g-col-xl-4}
 
 **Shuffled data**
 
@@ -320,7 +321,7 @@ Inputs.table(shuffle_preview.original, {
 
 Inputs.table(shuffle_preview.shuffled, {
   columns: [" ", "Group", "Outcome"],
-  rows: 8,
+  rows: 12,
   sort: false,
   select: false
 })
@@ -389,7 +390,7 @@ Plot.plot({
       null_dist,
       Plot.binX(
         { y: "count" },
-        { x: "stat", fill: clrs.navy, fillOpacity: 0.7 }
+        { x: "stat", fill: clrs.gray }
       )
     )
   ]
@@ -420,7 +421,7 @@ Plot.plot({
       null_dist,
       Plot.binX(
         { y: "count" },
-        { x: "stat", fill: clrs.navy, fillOpacity: 0.7 }
+        { x: "stat", fill: clrs.gray }
       )
     ),
     Plot.ruleX([obs_stat], { stroke: "red", strokeWidth: 3 }),
@@ -483,7 +484,7 @@ Plot.plot({
       x1: "x0",
       x2: "x1",
       y: "count",
-      fill: d => d.extreme ? clrs.coral + "aa" : clrs.navy + "b3",
+      fill: d => d.extreme ? clrs.coral + "aa" : clrs.gray,
       stroke: "white",
       strokeWidth: 0.5
     }),
@@ -566,7 +567,7 @@ Plot.plot({
       x1: "x0",
       x2: "x1",
       y: "count",
-      fill: d => d.extreme ? clrs.coral + "aa" : clrs.navy + "b3",
+      fill: d => d.extreme ? clrs.coral + "aa" : clrs.gray,
       stroke: "white",
       strokeWidth: 0.5
     }),
