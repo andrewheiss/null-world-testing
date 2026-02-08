@@ -10,7 +10,7 @@ $code-font-size: 0.75em;
 }
 
 // Remove top spacing so hero sits flush against navbar
-#quarto-content main.content {
+body:has(.hero-banner, .hero-banner-mini) #quarto-content main.content {
   padding-top: 0;
   margin-top: 0;
 
@@ -60,6 +60,12 @@ $code-font-size: 0.75em;
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
+  }
+
+  &-mini {
+    @extend .hero-banner;
+    padding: 1rem 1rem;
+    margin-bottom: 3rem;
   }
 }
 
@@ -113,30 +119,35 @@ thead th {
   }
 }
 
-// Regular content section
-.content-section {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 3rem 1.5rem;
-}
+#quarto-document-content h2:not(.quarto-appendix-heading) {
+  text-align: center;
+  position: relative;
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid currentColor;
+  
+  &::after {
+    content: '◉';
+    position: absolute;
+    bottom: -0.7em;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    padding: 0;
+    font-size: 0.6em;
+  }
 
-.home {
-  h2 {
-    text-align: center;
-    position: relative;
-    padding-bottom: 1.5rem;
-    margin-bottom: 1.5rem;
-    border-bottom: 1px solid currentColor;
-    
-    &::after {
-      content: '◉';
+  // The little anchored link icon messes with the centered alignment; 
+  // this makes the icon not get included in the heading text block
+  &.anchored {
+    .anchorjs-link {
+      display: inline-block;
       position: absolute;
-      bottom: -0.7em;
-      left: 50%;
-      transform: translateX(-50%);
-      background: white;
-      padding: 0;
-      font-size: 0.6em;
     }
   }
+}
+
+h2.anchored .anchorjs-link {
+  display: inline-block;
+  position: absolute;
 }
