@@ -36,6 +36,8 @@ website:
       - href: regression.qmd
         text: Regression slope
     right:
+      - href: evidentiary-standards.qmd
+        text: Evidentiary standards
       - icon: github
         href: "https://github.com/andrewheiss/null-world-testing"
 
@@ -54,3 +56,10 @@ format:
       - zephyr
       - brand
       - css/custom.scss
+
+filters:
+  - footnote-styles
+extensions:
+  footnote-styles:
+    # style: "symbols"
+    custom: ["†", "‡", "§", "‖"]

@@ -1,5 +1,3 @@
-### Evidentiary standards
-
 When thinking about p-values and thresholds, I like to imagine myself as a judge or a member of a jury. Many legal systems around the world have formal evidentiary thresholds or standards of proof. If prosecutors provide evidence that meets a threshold (i.e. goes beyond a reasonable doubt, or shows evidence on a balance of probabilities), the judge or jury can rule *guilty*. If there's not enough evidence to clear the standard or threshold, the judge or jury has to rule *not guilty*.
 
 With p-values:
@@ -7,11 +5,9 @@ With p-values:
 - If the probability of seeing an effect or difference (or δ) in a null world is less than 5% (or whatever the threshold is), we rule it *statistically significant* and say that the difference does not fit in that world. **We're pretty confident that it's not zero.**
 - If the p-value is larger than the threshold, we do not have enough evidence to claim that δ doesn't come from a world of where there's no difference. **We don't know if it's not zero.**
 
-Importantly, *if the difference is not significant, that does not mean that there is no difference*. **It just means that we can't detect one if there is**. If a prosecutor doesn't provide sufficient evidence to clear a standard or threshold, it does not mean that the defendant didn't do whatever they're charged with\*—it means that the judge or jury can't detect guilt.
+Importantly, *if the difference is not significant, that does not mean that there is no difference*. **It just means that we can't detect one if there is**. If a prosecutor doesn't provide sufficient evidence to clear a standard or threshold, it does not mean that the defendant didn't do whatever they're charged with[^innocent]—it means that the judge or jury can't detect guilt.
 
-::: {style="font-size: 0.8em;"}
-\* Kind of—in common law systems, defendants are presumed innocent until proven guilty, so if there's not enough evidence to prove guilt, they are innocent by definition.
-:::
+[^innocent]: Kind of—in common law systems, defendants are presumed innocent until proven guilty, so if there's not enough evidence to prove guilt, they are innocent by definition.
 
 ::: {.callout-note}
 #### Different evidentiary standards

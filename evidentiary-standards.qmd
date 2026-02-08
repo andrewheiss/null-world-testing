@@ -1,0 +1,13 @@
+---
+title: "Evidentiary standards"
+---
+
+::: {.column-screen .hero-banner-mini}
+
+# Evidentiary standards
+
+◎◉○
+
+:::
+
+{{< include _evidentiary-standards.qmd >}}

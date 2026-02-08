@@ -2,12 +2,6 @@
 page-title: "Statistical testing in null worlds"
 sidebar: false
 toc: false
-filters:
-  - footnote-styles
-extensions:
-  footnote-styles:
-    # style: "symbols"
-    custom: ["†", "‡", "§", "‖"]
 ---
 
 ::: {.column-screen .hero-image}
