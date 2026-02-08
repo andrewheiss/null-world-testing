@@ -22,7 +22,7 @@ Learn the intuition behind p-values through simulation
 
 ## There is only one test
 
-At their core, all statistical tests[^nhst-caveat] can be conducted by following a universal pattern:
+At their core, all statistical tests[^nhst-caveat] can be conducted by following a [universal pattern](https://www.andrewheiss.com/blog/2018/12/05/test-any-hypothesis/):
 
 - **Step 1: Calculate a sample statistic, or $\delta$ ("delta").** This is the main measure you care about: the difference in means, the average, the median, the proportion, the difference in proportions, the slope in a regression model, an odds ratio, etc.
 - **Step 2: Use simulation to invent a world where $\delta$ is null.** Simulate what the world would look like if there was no difference or relationship between two groups, or if there was no difference in proportions, or where the average value is a specific number.
