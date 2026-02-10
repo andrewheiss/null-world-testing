@@ -1,5 +1,4 @@
 ---
-page-title: "Statistical testing in null worlds"
 sidebar: false
 toc: false
 ---
