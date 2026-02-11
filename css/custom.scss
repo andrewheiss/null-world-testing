@@ -4,6 +4,12 @@ $code-font-size: 0.75em;
 
 /*-- scss:rules --*/
 
+// Vertically center nav items within each navbar group so left and right
+// items align even when the GitHub icon makes the right group taller
+.navbar-nav {
+  align-items: center;
+}
+
 // Shrink the little icon in the navbar title
 .null-icon {
   font-size: 1.25cap;
