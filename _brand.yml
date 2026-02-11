@@ -33,4 +33,4 @@ defaults:
       navbar-fg: "#ffffff"
       navbar-hl: $brand-orange
       nav-link-font-size: 0.9em
-      nav-link-padding-x: 0.2rem
+      # nav-link-padding-x: 0.2rem
